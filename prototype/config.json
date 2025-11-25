@@ -1,0 +1,15 @@
+{
+  "city": "Tehran",
+  "interval_minutes": 15,
+  "h3_resolution": 8,
+  "service_types": [1, 2],
+  "top_k": 6,
+  "sample_path": "sample_data/trips.csv",
+  "cache_path": "cache/forecast.json",
+  "horizons": [
+    {"minutes": 30, "max_surge_percent": 60, "min_surge_percent": -10},
+    {"minutes": 60, "max_surge_percent": 70, "min_surge_percent": -10},
+    {"minutes": 90, "max_surge_percent": 80, "min_surge_percent": -15}
+  ]
+}
+

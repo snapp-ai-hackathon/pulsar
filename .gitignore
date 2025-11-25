@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.pytest_cache/
+cache/
+mlruns/
+.DS_Store
+*.pyc
+.cache/
+.env
+node_modules/
+data/*.csv
+data/*.parquet

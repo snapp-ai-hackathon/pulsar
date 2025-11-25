@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fa">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pulsar Forecast UI</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 2rem;
+        background: #0f172a;
+        color: #e2e8f0;
+      }
+      h1 {
+        margin-bottom: 1rem;
+      }
+      .panel {
+        background: #1e293b;
+        border-radius: 12px;
+        padding: 1.5rem;
+        max-width: 720px;
+      }
+      label {
+        display: block;
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+        color: #cbd5f5;
+      }
+      input,
+      select {
+        width: 100%;
+        margin-top: 0.35rem;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        border: 1px solid #334155;
+        background: #0f172a;
+        color: #f8fafc;
+      }
+      button {
+        margin-top: 1rem;
+        padding: 0.65rem 1.2rem;
+        border-radius: 10px;
+        border: none;
+        background: linear-gradient(120deg, #14b8a6, #0ea5e9);
+        color: #0f172a;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      .results {
+        margin-top: 1.5rem;
+      }
+      .card {
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #0b1120;
+      }
+      .card h3 {
+        margin: 0 0 0.5rem 0;
+        color: #38bdf8;
+      }
+      .card span {
+        display: inline-block;
+        min-width: 140px;
+      }
+      .error {
+        color: #f87171;
+      }
+    </style>
+  </head>
+  <body dir="rtl">
+    <div class="panel">
+      <h1>نمایش Forecast پالسار</h1>
+      <p>آیدی هگزاگون و نوع سرویس را وارد کنید، خروجی JSON API به‌صورت کارت نمایش داده می‌شود.</p>
+      <label>Hexagon ID (H3)</label>
+      <input id="hexagon" placeholder="613280476251029503" />
+
+      <label>Service Type</label>
+      <input id="serviceType" type="number" value="1" />
+
+      <label>Horizons (comma separated minutes)</label>
+      <input id="horizons" value="30,60,90" />
+
+      <button onclick="fetchForecast()">دریافت پیش‌بینی</button>
+
+      <div id="status" class="results"></div>
+      <div id="cards" class="results"></div>
+    </div>
+
+    <script>
+      async function fetchForecast() {
+        const hexagon = document.getElementById("hexagon").value.trim();
+        const serviceType = document.getElementById("serviceType").value.trim();
+        const horizons = document
+          .getElementById("horizons")
+          .value.split(",")
+          .map((h) => h.trim())
+          .filter(Boolean)
+          .map((h) => `horizons=${h}`);
+
+        const status = document.getElementById("status");
+        const cards = document.getElementById("cards");
+        status.textContent = "در حال دریافت...";
+        cards.innerHTML = "";
+
+        if (!hexagon || !serviceType) {
+          status.innerHTML = '<span class="error">لطفاً مقادیر را کامل کنید.</span>';
+          return;
+        }
+
+        try {
+          const query = `hexagon=${hexagon}&service_type=${serviceType}&${horizons.join("&")}`;
+          const response = await fetch(`/forecast?${query}`);
+          if (!response.ok) {
+            throw new Error("API پاسخ مناسبی نداد");
+          }
+          const data = await response.json();
+          status.textContent = `تعداد نتایج: ${data.length}`;
+
+          data.forEach((item) => {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <h3>افق ${item.horizon_min} دقیقه‌ای</h3>
+              <div><span>تقاضای پیش‌بینی‌شده:</span> ${item.demand}</div>
+              <div><span>کمبود راننده:</span> ${item.driver_gap}</div>
+              <div><span>درصد سرج پیشنهادی:</span> ${item.surge_delta_percent}%</div>
+              <div><span>اعتماد مدل:</span> ${item.confidence}</div>
+            `;
+            cards.appendChild(card);
+          });
+        } catch (err) {
+          status.innerHTML = `<span class="error">${err.message}</span>`;
+        }
+      }
+    </script>
+  </body>
+</html>
+

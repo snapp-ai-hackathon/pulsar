@@ -1,0 +1,16 @@
+[
+  {
+    "hexagon": 613280476251029503,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-10-15T07:00:00+00:00",
+      "to": "2025-10-15T07:07:30+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  }
+]
+

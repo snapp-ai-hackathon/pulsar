@@ -1,0 +1,236 @@
+[
+  {
+    "hexagon": 613280476251029503,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:00:57.660200+00:00",
+      "to": "2025-11-20T12:08:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613653189614370815,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:00:57.660200+00:00",
+      "to": "2025-11-20T12:08:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613732126578901111,
+    "service_type": 2,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:00:57.660200+00:00",
+      "to": "2025-11-20T12:08:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613280476251029503,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:08:27.660200+00:00",
+      "to": "2025-11-20T12:15:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613653189614370815,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:08:27.660200+00:00",
+      "to": "2025-11-20T12:15:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613732126578901111,
+    "service_type": 2,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:08:27.660200+00:00",
+      "to": "2025-11-20T12:15:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613280476251029503,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:15:57.660200+00:00",
+      "to": "2025-11-20T12:23:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613653189614370815,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:15:57.660200+00:00",
+      "to": "2025-11-20T12:23:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613732126578901111,
+    "service_type": 2,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:15:57.660200+00:00",
+      "to": "2025-11-20T12:23:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613280476251029503,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:23:27.660200+00:00",
+      "to": "2025-11-20T12:30:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613653189614370815,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:23:27.660200+00:00",
+      "to": "2025-11-20T12:30:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613732126578901111,
+    "service_type": 2,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:23:27.660200+00:00",
+      "to": "2025-11-20T12:30:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613280476251029503,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:30:57.660200+00:00",
+      "to": "2025-11-20T12:38:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613653189614370815,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:30:57.660200+00:00",
+      "to": "2025-11-20T12:38:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613732126578901111,
+    "service_type": 2,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:30:57.660200+00:00",
+      "to": "2025-11-20T12:38:27.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613280476251029503,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:38:27.660200+00:00",
+      "to": "2025-11-20T12:45:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613653189614370815,
+    "service_type": 1,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:38:27.660200+00:00",
+      "to": "2025-11-20T12:45:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  },
+  {
+    "hexagon": 613732126578901111,
+    "service_type": 2,
+    "city_id": 1,
+    "period": {
+      "from": "2025-11-20T12:38:27.660200+00:00",
+      "to": "2025-11-20T12:45:57.660200+00:00"
+    },
+    "expansion_weight": {
+      "pc_weight": 1.0,
+      "ar_weight": 1.0
+    }
+  }
+]

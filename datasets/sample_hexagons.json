@@ -1,0 +1,21 @@
+[
+  {
+    "hexagon": 613280476251029503,
+    "service_type": 1,
+    "city_id": 1,
+    "label": "Tehran - District 3"
+  },
+  {
+    "hexagon": 613653189614370815,
+    "service_type": 1,
+    "city_id": 1,
+    "label": "Tehran - District 6"
+  },
+  {
+    "hexagon": 613732126578901111,
+    "service_type": 2,
+    "city_id": 1,
+    "label": "Tehran Plus - Azadi"
+  }
+]
+
