@@ -1,0 +1,107 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/owner/pulsar
+  tag: "latest"
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8088
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: pulsar.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+affinity: {}
+nodeSelector: {}
+tolerations: []
+
+config:
+  path: /etc/pulsar/config.yaml
+  contents: |
+    redis:
+      raw_master: { host: "redis.raw-master", port: 6379, db: 0 }
+      raw_slave: { host: "redis.raw-slave", port: 6379, db: 0 }
+      prepared_master: { host: "redis.prepared-master", port: 6379, db: 0 }
+      prepared_slave: { host: "redis.prepared-slave", port: 6379, db: 0 }
+    rabbitmq:
+      host: "rabbitmq"
+      port: 5672
+      user: "guest"
+      password: "guest"
+      vhost: "/"
+      queues:
+        mru: "kandoo.mru"
+        lru: "kandoo.lru"
+        canary_mru: "kandoo.canary.mru"
+        canary_lru: "kandoo.canary.lru"
+    cache_dir: /var/pulsar/cache
+
+command:
+  - pulsar
+args:
+  - --config
+  - /etc/pulsar/config.yaml
+  - api
+  - --host
+  - 0.0.0.0
+  - --port
+  - "8088"
+
+extraEnv: []
+envFrom: []
+
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 30
+
+readinessProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 15
+
+volumeMounts: []
+volumes: []

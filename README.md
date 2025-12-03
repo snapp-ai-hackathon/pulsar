@@ -100,6 +100,25 @@ You can pull it via:
 docker pull ghcr.io/<owner>/<repo>:latest
 ```
 
+## Helm Deployment
+
+Deploy Pulsar onto Kubernetes with the bundled chart:
+
+```bash
+helm upgrade --install pulsar charts/pulsar \
+  --set image.repository=ghcr.io/<owner>/<repo> \
+  --set image.tag=latest \
+  --set-string config.contents="$(cat config.yaml)"
+```
+
+Key values in `charts/pulsar/values.yaml`:
+- `image.repository`/`image.tag`: GHCR image the CI pipeline publishes.
+- `config.contents`: in-cluster `config.yaml` rendered into a ConfigMap and mounted at `/etc/pulsar/config.yaml`.
+- `service.port`/`ingress.*`: expose the FastAPI service.
+- `args`: defaults to `pulsar --config /etc/pulsar/config.yaml api --host 0.0.0.0 --port 8088`; adjust for `sync` jobs or training runs.
+
+The chart also supports custom env vars, probes, and imagePullSecrets for private GHCR orgs.
+
 ## Infra Integration Cheat Sheet
 
 | Component | What to plug in | Where to edit |
