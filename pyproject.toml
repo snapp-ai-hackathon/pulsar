@@ -33,8 +33,8 @@ pulsar = "pulsar.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = [
-  { include = "pulsar", from = "src" },
-  { include = "pulsar_core", from = "src" },
+  "src/pulsar",
+  "src/pulsar_core",
 ]
 
 [tool.hatch.build]
