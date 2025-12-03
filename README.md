@@ -93,6 +93,12 @@ docker run --rm \
 ```
 
 The image installs the project with `uv sync --frozen`, so builds are reproducible with `uv.lock`.
+On every push to `master`, GitHub Actions also publishes the image to GHCR at `ghcr.io/<owner>/<repo>`.
+You can pull it via:
+
+```
+docker pull ghcr.io/<owner>/<repo>:latest
+```
 
 ## Infra Integration Cheat Sheet
 
@@ -129,4 +135,4 @@ That’s everything a teammate needs in order to fork this repo (or wipe the pre
 
 ## Continuous Integration
 
-The workflow in `.github/workflows/ci.yaml` uses `uv` to install dependencies, runs a lightweight import/bytecode check, and proves that the Docker image builds cleanly on every push and pull request.
+The workflow in `.github/workflows/ci.yaml` uses `uv` to install dependencies, runs a lightweight import/bytecode check, and builds the Docker image. On non-PR events (pushes to `master`, manual runs, tags) the job logs in to GHCR with `GITHUB_TOKEN` and pushes multi-tagged images such as `latest`, branch names, and the commit SHA.
