@@ -35,7 +35,7 @@ spec:
           args:
             - --config
             - config.yaml
-            - train
+            - clickhouse-export
           env:
             {{- toYaml .Values.extraEnv | nindent 12 }}
           envFrom:

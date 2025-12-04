@@ -80,10 +80,6 @@ config:
 
 command:
   - pulsar
-args:
-  - --config
-  - config.yaml
-  - train
 
 extraEnv: []
 envFrom: []
