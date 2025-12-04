@@ -1,0 +1,15 @@
+# Common Helm ignores
+.DS_Store
+.git/
+.git/**
+*.pack
+.gitignore
+README.md
+*.swp
+*.bak
+*.tmp
+*.orig
+*.lock
+.env
+.vscode/
+.idea/
