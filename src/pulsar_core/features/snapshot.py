@@ -55,16 +55,24 @@ class SnapshotBuilder:
 
     def build(self, task: ImportTask) -> HexagonSnapshot:
         period = task.period
-        acceptance = self.loader.acceptance_metrics(period, task.hexagon, task.service_type)
-        price = self.loader.price_metrics(period, task.hexagon, task.service_type, task.service_type)
+        acceptance = self.loader.acceptance_metrics(
+            period, task.hexagon, task.service_type
+        )
+        price = self.loader.price_metrics(
+            period, task.hexagon, task.service_type, task.service_type
+        )
 
-        acceptance_rate = self._safe_ratio(acceptance["accepts"], acceptance["requests"])
+        acceptance_rate = self._safe_ratio(
+            acceptance["accepts"], acceptance["requests"]
+        )
         price_conversion = self._safe_ratio(price["ride_requests"], price["get_prices"])
         demand_signal = price["ride_requests"] + 0.5 * price["get_prices"]
         supply_signal = max(acceptance["accepts"], 1)
         surge_data = None
         if hasattr(self.loader, "surge_metrics"):
-            surge_data = self.loader.surge_metrics(period, task.hexagon, task.service_type)
+            surge_data = self.loader.surge_metrics(
+                period, task.hexagon, task.service_type
+            )
 
         return HexagonSnapshot(
             hexagon=task.hexagon,
@@ -79,8 +87,12 @@ class SnapshotBuilder:
             rule_sheet_id=surge_data.get("rule_sheet_id") if surge_data else None,
             surge_percent=surge_data.get("surge_percent") if surge_data else None,
             surge_absolute=surge_data.get("surge_absolute") if surge_data else None,
-            cumulative_surge_percent=surge_data.get("cumulative_surge_percent") if surge_data else None,
-            cumulative_surge_absolute=surge_data.get("cumulative_surge_absolute") if surge_data else None,
+            cumulative_surge_percent=surge_data.get("cumulative_surge_percent")
+            if surge_data
+            else None,
+            cumulative_surge_absolute=surge_data.get("cumulative_surge_absolute")
+            if surge_data
+            else None,
         )
 
     def _safe_ratio(self, numerator: int, denominator: int) -> float:
@@ -94,4 +106,3 @@ class SnapshotBuilder:
             self.cfg.period_duration_minutes,
             self.cfg.collect_duration_minutes,
         )
-

@@ -56,7 +56,9 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
     ):
         results = fc.forecast(hexagon, service_type, horizons)
         if not results:
-            raise HTTPException(status_code=404, detail="not enough history for this hexagon")
+            raise HTTPException(
+                status_code=404, detail="not enough history for this hexagon"
+            )
         return [item.as_dict() for item in results]
 
     return app

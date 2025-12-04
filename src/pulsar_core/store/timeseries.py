@@ -57,9 +57,13 @@ class TimeSeriesStore:
                 if not existing.empty:
                     existing["period_start"] = pd.to_datetime(existing["period_start"])
                     if "cumulative_surge_percent" in existing.columns:
-                        prev_cum_percent = float(existing["cumulative_surge_percent"].iloc[-1])
+                        prev_cum_percent = float(
+                            existing["cumulative_surge_percent"].iloc[-1]
+                        )
                     if "cumulative_surge_absolute" in existing.columns:
-                        prev_cum_absolute = float(existing["cumulative_surge_absolute"].iloc[-1])
+                        prev_cum_absolute = float(
+                            existing["cumulative_surge_absolute"].iloc[-1]
+                        )
 
             # Build new rows, updating cumulative fields incrementally
             rows: List[Dict] = []
@@ -73,19 +77,27 @@ class TimeSeriesStore:
 
                 # Update cumulative surge percent
                 if row.get("cumulative_surge_percent") is None:
-                    row["cumulative_surge_percent"] = prev_cum_percent + row["surge_percent"]
+                    row["cumulative_surge_percent"] = (
+                        prev_cum_percent + row["surge_percent"]
+                    )
                 else:
                     # Preserve explicit values, only filling missing ones
                     if pd.isna(row["cumulative_surge_percent"]):
-                        row["cumulative_surge_percent"] = prev_cum_percent + row["surge_percent"]
+                        row["cumulative_surge_percent"] = (
+                            prev_cum_percent + row["surge_percent"]
+                        )
                 prev_cum_percent = float(row["cumulative_surge_percent"])
 
                 # Update cumulative surge absolute
                 if row.get("cumulative_surge_absolute") is None:
-                    row["cumulative_surge_absolute"] = prev_cum_absolute + row["surge_absolute"]
+                    row["cumulative_surge_absolute"] = (
+                        prev_cum_absolute + row["surge_absolute"]
+                    )
                 else:
                     if pd.isna(row["cumulative_surge_absolute"]):
-                        row["cumulative_surge_absolute"] = prev_cum_absolute + row["surge_absolute"]
+                        row["cumulative_surge_absolute"] = (
+                            prev_cum_absolute + row["surge_absolute"]
+                        )
                 prev_cum_absolute = float(row["cumulative_surge_absolute"])
 
                 rows.append(row)
@@ -97,13 +109,19 @@ class TimeSeriesStore:
             frame["period_start"] = pd.to_datetime(frame["period_start"])
 
             to_concat = []
-            if existing is not None and not existing.empty and not existing.isna().all().all():
+            if (
+                existing is not None
+                and not existing.empty
+                and not existing.isna().all().all()
+            ):
                 to_concat.append(existing)
             if not frame.empty and not frame.isna().all().all():
                 to_concat.append(frame)
 
             if to_concat:
-                frame_out = pd.concat(to_concat, ignore_index=True).drop_duplicates(subset=["period_start"])
+                frame_out = pd.concat(to_concat, ignore_index=True).drop_duplicates(
+                    subset=["period_start"]
+                )
             else:
                 frame_out = frame
 
@@ -124,20 +142,21 @@ class TimeSeriesStore:
         if frame.empty:
             return []
         row = frame.reset_index().iloc[0].to_dict()
-        return [HexagonSnapshot(
-            hexagon=hexagon,
-            service_type=service_type,
-            city_id=row["city_id"],
-            period_start=row["period_start"],
-            period_end=pd.to_datetime(row["period_end"]),
-            acceptance_rate=row["acceptance_rate"],
-            price_conversion=row["price_conversion"],
-            demand_signal=row["demand_signal"],
-            supply_signal=row["supply_signal"],
-            rule_sheet_id=row.get("rule_sheet_id"),
-            surge_percent=row.get("surge_percent"),
-            surge_absolute=row.get("surge_absolute"),
-            cumulative_surge_percent=row.get("cumulative_surge_percent"),
-            cumulative_surge_absolute=row.get("cumulative_surge_absolute"),
-        )]
-
+        return [
+            HexagonSnapshot(
+                hexagon=hexagon,
+                service_type=service_type,
+                city_id=row["city_id"],
+                period_start=row["period_start"],
+                period_end=pd.to_datetime(row["period_end"]),
+                acceptance_rate=row["acceptance_rate"],
+                price_conversion=row["price_conversion"],
+                demand_signal=row["demand_signal"],
+                supply_signal=row["supply_signal"],
+                rule_sheet_id=row.get("rule_sheet_id"),
+                surge_percent=row.get("surge_percent"),
+                surge_absolute=row.get("surge_absolute"),
+                cumulative_surge_percent=row.get("cumulative_surge_percent"),
+                cumulative_surge_absolute=row.get("cumulative_surge_absolute"),
+            )
+        ]

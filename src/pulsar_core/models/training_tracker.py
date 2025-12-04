@@ -24,8 +24,12 @@ class TrainingTracker:
             try:
                 data = json.loads(self.tracker_file.read_text())
                 # Convert date strings back to date objects
-                self._trained_dates = {date.fromisoformat(d) for d in data.get("trained_dates", [])}
-                logger.info(f"Loaded {len(self._trained_dates)} trained dates from tracker")
+                self._trained_dates = {
+                    date.fromisoformat(d) for d in data.get("trained_dates", [])
+                }
+                logger.info(
+                    f"Loaded {len(self._trained_dates)} trained dates from tracker"
+                )
             except Exception as exc:
                 logger.warning(f"Failed to load training tracker: {exc}")
                 self._trained_dates = set()
@@ -58,6 +62,7 @@ class TrainingTracker:
             self._trained_dates.add(current)
             # Move to next day
             from datetime import timedelta
+
             current += timedelta(days=1)
         self._save()
 
@@ -73,6 +78,7 @@ class TrainingTracker:
             if current not in self._trained_dates:
                 missing.append(current)
             from datetime import timedelta
+
             current += timedelta(days=1)
         return missing
 
@@ -85,7 +91,7 @@ class TrainingTracker:
                 "last_trained_date": None,
                 "trained_dates": [],
             }
-        
+
         sorted_dates = sorted(self._trained_dates)
         return {
             "total_trained_dates": len(self._trained_dates),
@@ -93,4 +99,3 @@ class TrainingTracker:
             "last_trained_date": sorted_dates[-1].isoformat(),
             "trained_dates": [d.isoformat() for d in sorted_dates],
         }
-

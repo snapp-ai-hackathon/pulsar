@@ -36,7 +36,9 @@ class SimpleForecaster:
     def __init__(self, store: TimeSeriesStore):
         self.store = store
 
-    def forecast(self, hexagon: int, service_type: int, horizons: List[int]) -> List[ForecastResult]:
+    def forecast(
+        self, hexagon: int, service_type: int, horizons: List[int]
+    ) -> List[ForecastResult]:
         history = self.store.history(hexagon, service_type)
         if history.empty or len(history) < 4:
             return []
@@ -59,7 +61,9 @@ class SimpleForecaster:
             pred = model.predict([[future_index]])[0]
             driver_gap = pred - latest_drivers
             surge_delta = self._surge_delta(pred, latest_demand)
-            confidence = float(max(0.2, 1 - demand_series.std() / (demand_series.mean() + 1e-6)))
+            confidence = float(
+                max(0.2, 1 - demand_series.std() / (demand_series.mean() + 1e-6))
+            )
             results.append(
                 ForecastResult(
                     hexagon=hexagon,
@@ -78,4 +82,3 @@ class SimpleForecaster:
             current = 1.0
         delta = (predicted - current) / current * 100
         return float(np.clip(delta, -20, 80))
-

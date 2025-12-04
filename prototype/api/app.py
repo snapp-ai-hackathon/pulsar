@@ -89,7 +89,9 @@ def health() -> dict:
 def get_forecast(
     city: str = Query("Tehran"),
     service_type: int = Query(1, ge=1),
-    horizon_min: Optional[int] = Query(None, description="Optional horizon filter, e.g. 30"),
+    horizon_min: Optional[int] = Query(
+        None, description="Optional horizon filter, e.g. 30"
+    ),
     limit: int = Query(10, gt=0, le=50),
 ) -> List[ForecastResponse]:
     rows = store().read()
@@ -161,4 +163,3 @@ def get_zone_features(
 def refresh_cache() -> dict:
     rows = store().refresh()
     return {"rows": len(rows), "message": "cache refreshed"}
-

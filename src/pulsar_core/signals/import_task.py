@@ -57,4 +57,3 @@ class ImportTask:
 
     def period_key(self) -> str:
         return period_string(self.period.start, self.period.end)
-

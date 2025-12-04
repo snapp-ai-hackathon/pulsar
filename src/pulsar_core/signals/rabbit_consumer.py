@@ -49,17 +49,29 @@ class ImportTaskConsumer:
                     try:
                         payload = json.loads(message.body.decode("utf-8"))
                         task = ImportTask.from_payload(payload)
-                    except (json.JSONDecodeError, ValueError, KeyError, TypeError) as exc:
-                        logger.error(f"Failed to parse import task: {exc}", exc_info=True)
+                    except (
+                        json.JSONDecodeError,
+                        ValueError,
+                        KeyError,
+                        TypeError,
+                    ) as exc:
+                        logger.error(
+                            f"Failed to parse import task: {exc}", exc_info=True
+                        )
                         continue
                     except Exception as exc:  # pylint: disable=broad-except
-                        logger.error(f"Unexpected error processing import task: {exc}", exc_info=True)
+                        logger.error(
+                            f"Unexpected error processing import task: {exc}",
+                            exc_info=True,
+                        )
                         continue
-                    
+
                     try:
                         await self.handler(task)
                     except Exception as exc:  # pylint: disable=broad-except
-                        logger.error(f"Error handling import task: {exc}", exc_info=True)
+                        logger.error(
+                            f"Error handling import task: {exc}", exc_info=True
+                        )
                         # Continue processing other messages even if one fails
 
     async def stop(self) -> None:
@@ -69,7 +81,9 @@ class ImportTaskConsumer:
             await self._connection.close()
 
 
-async def run_consumer(cfg: PulsarConfig, handler: ImportHandler, canary: bool = False) -> None:
+async def run_consumer(
+    cfg: PulsarConfig, handler: ImportHandler, canary: bool = False
+) -> None:
     consumer = ImportTaskConsumer(cfg, handler, canary=canary)
     try:
         await consumer.start()
@@ -77,6 +91,7 @@ async def run_consumer(cfg: PulsarConfig, handler: ImportHandler, canary: bool =
         await consumer.stop()
 
 
-def run_until_cancelled(cfg: PulsarConfig, handler: ImportHandler, canary: bool = False) -> None:
+def run_until_cancelled(
+    cfg: PulsarConfig, handler: ImportHandler, canary: bool = False
+) -> None:
     asyncio.run(run_consumer(cfg, handler, canary))
-

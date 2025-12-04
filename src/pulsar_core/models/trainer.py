@@ -53,11 +53,23 @@ class MLTrainer:
         frame = pd.concat(frames, ignore_index=True)
         frame["period_start"] = pd.to_datetime(frame["period_start"], errors="coerce")
         frame.sort_values(["hexagon", "service_type", "period_start"], inplace=True)
-        frame["lag_demand"] = frame.groupby(["hexagon", "service_type"])["demand_signal"].shift(1)
-        frame["lag_supply"] = frame.groupby(["hexagon", "service_type"])["supply_signal"].shift(1)
-        frame["lag_acceptance"] = frame.groupby(["hexagon", "service_type"])["acceptance_rate"].shift(1)
+        frame["lag_demand"] = frame.groupby(["hexagon", "service_type"])[
+            "demand_signal"
+        ].shift(1)
+        frame["lag_supply"] = frame.groupby(["hexagon", "service_type"])[
+            "supply_signal"
+        ].shift(1)
+        frame["lag_acceptance"] = frame.groupby(["hexagon", "service_type"])[
+            "acceptance_rate"
+        ].shift(1)
         frame.dropna(
-            subset=["lag_demand", "lag_supply", "lag_acceptance", "price_conversion", "demand_signal"],
+            subset=[
+                "lag_demand",
+                "lag_supply",
+                "lag_acceptance",
+                "price_conversion",
+                "demand_signal",
+            ],
             inplace=True,
         )
         return frame
@@ -72,40 +84,42 @@ class MLTrainer:
     ) -> TrainingResult:
         """
         Train model on historical data.
-        
+
         Args:
             service_types: List of service types to train on
             alpha: ElasticNet alpha parameter
             l1_ratio: ElasticNet l1_ratio parameter
             train_date: Date to mark as trained (defaults to today)
             force: Force retraining even if date is already trained
-            
+
         Returns:
             TrainingResult with metrics and model URI
         """
         if train_date is None:
             train_date = date.today()
-        
+
         # Check if already trained
         if not force and self.tracker.is_trained(train_date):
             raise ValueError(
                 f"Date {train_date} has already been trained. Use --force to retrain."
             )
-        
+
         dataset = self._load_dataset(service_types)
-        
+
         # Extract date range from dataset
         if not dataset.empty and "period_start" in dataset.columns:
             min_date = dataset["period_start"].min().date()
             max_date = dataset["period_start"].max().date()
         else:
             min_date = max_date = train_date
-        
+
         features = dataset[
             ["lag_demand", "lag_supply", "lag_acceptance", "price_conversion"]
         ].astype(float)
         target = dataset["demand_signal"].astype(float)
-        x_train, x_test, y_train, y_test = train_test_split(features, target, test_size=0.2, shuffle=True)
+        x_train, x_test, y_train, y_test = train_test_split(
+            features, target, test_size=0.2, shuffle=True
+        )
 
         model = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)
         model.fit(x_train, y_train)
@@ -117,7 +131,7 @@ class MLTrainer:
         if self.cfg.mlflow_tracking_uri:
             mlflow.set_tracking_uri(self.cfg.mlflow_tracking_uri)
         mlflow.set_experiment(self.cfg.mlflow_experiment)
-        
+
         run_name = f"elasticnet-demand-{train_date.isoformat()}"
         with mlflow.start_run(run_name=run_name):
             mlflow.log_param("alpha", alpha)
@@ -134,7 +148,7 @@ class MLTrainer:
 
         # Mark as trained
         self.tracker.mark_trained(train_date)
-        
+
         return TrainingResult(
             hexagons=dataset["hexagon"].nunique(),
             rows=len(dataset),
@@ -142,4 +156,3 @@ class MLTrainer:
             rmse=rmse,
             model_uri=model_uri,
         )
-

@@ -89,7 +89,9 @@ class CNNTrainer:
             steps.append(multiplier)
         return steps
 
-    def _load_sequences(self, service_types: List[int]) -> Tuple[np.ndarray, np.ndarray, int]:
+    def _load_sequences(
+        self, service_types: List[int]
+    ) -> Tuple[np.ndarray, np.ndarray, int]:
         cache_root = self.store.root
         if not cache_root.exists():
             raise ValueError("timeseries history not found; run data sync first")
@@ -138,7 +140,9 @@ class CNNTrainer:
                 unique_hex.add((hexagon, service_type))
 
         if not sequences:
-            raise ValueError("no sequences found for the requested service types; ensure data exists")
+            raise ValueError(
+                "no sequences found for the requested service types; ensure data exists"
+            )
 
         inputs = np.stack(sequences)
         outputs = np.stack(targets)
@@ -149,13 +153,17 @@ class CNNTrainer:
         dataset = SequenceWindowDataset(inputs, targets)
         total_samples = len(dataset)
         if total_samples < 100:
-            raise ValueError("not enough samples to train CNN model (need at least 100)")
+            raise ValueError(
+                "not enough samples to train CNN model (need at least 100)"
+            )
 
         train_size = int(total_samples * 0.8)
         val_size = total_samples - train_size
         train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
-        train_loader = DataLoader(train_dataset, batch_size=self.trainer_cfg.batch_size, shuffle=True)
+        train_loader = DataLoader(
+            train_dataset, batch_size=self.trainer_cfg.batch_size, shuffle=True
+        )
         val_loader = DataLoader(val_dataset, batch_size=self.trainer_cfg.batch_size)
 
         feature_dim = inputs.shape[-1]
@@ -195,7 +203,9 @@ class CNNTrainer:
                     val_loss += loss.item() * batch_inputs.size(0)
                 avg_val_loss = val_loss / val_size
 
-            print(f"[cnn] epoch {epoch+1}/{self.trainer_cfg.epochs} train_loss={avg_train_loss:.4f} val_loss={avg_val_loss:.4f}")
+            print(
+                f"[cnn] epoch {epoch + 1}/{self.trainer_cfg.epochs} train_loss={avg_train_loss:.4f} val_loss={avg_val_loss:.4f}"
+            )
 
         # Evaluate MAE / RMSE on full dataset
         model.eval()
@@ -228,4 +238,3 @@ class CNNTrainer:
             rmse=rmse,
             model_uri=model_uri,
         )
-

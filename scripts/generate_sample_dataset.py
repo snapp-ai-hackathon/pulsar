@@ -91,7 +91,9 @@ def build_tasks(duration_minutes: float, future_steps: int = 6) -> List[dict]:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Generate synthetic dataset for Pulsar bridge.")
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic dataset for Pulsar bridge."
+    )
     parser.add_argument("--config", type=Path, default=Path("config.example.yaml"))
     parser.add_argument(
         "--tasks-output",
@@ -114,9 +116,10 @@ def main() -> None:
 
     args.tasks_output.parent.mkdir(parents=True, exist_ok=True)
     args.tasks_output.write_text(json.dumps(tasks, indent=2))
-    print(f"[pulsar] generated {args.history} periods per hexagon and wrote {len(tasks)} tasks to {args.tasks_output}")
+    print(
+        f"[pulsar] generated {args.history} periods per hexagon and wrote {len(tasks)} tasks to {args.tasks_output}"
+    )
 
 
 if __name__ == "__main__":
     main()
-

@@ -36,20 +36,20 @@ def process_csv_files(
     print(f"[pulsar] Loading CSV files from {data_dir}...")
     csv_data = load_csv_files(data_dir)
     print(f"[pulsar] Loaded {len(csv_data)} rows from CSV files")
-    
+
     # Load config
     cfg = load_config(config_path)
-    
+
     # Create CSV signal loader
     csv_loader = CSVSignalLoader(csv_data)
-    
+
     # Create snapshot builder with CSV loader
     builder = SnapshotBuilder(cfg, csv_loader)
-    
+
     # Create time series store
     cache_dir = cfg.ensure_cache_dir() / "timeseries"
     store = TimeSeriesStore(cache_dir)
-    
+
     # Convert CSV to import tasks
     print("[pulsar] Converting CSV data to import tasks...")
     task_payloads = create_import_tasks_from_csv(
@@ -58,7 +58,7 @@ def process_csv_files(
         cfg.collect_duration_minutes,
     )
     print(f"[pulsar] Created {len(task_payloads)} import tasks")
-    
+
     # Process tasks and build snapshots
     print("[pulsar] Processing tasks and building snapshots...")
     processed = 0
@@ -71,31 +71,33 @@ def process_csv_files(
             if processed % 1000 == 0:
                 print(f"[pulsar] Processed {processed}/{len(task_payloads)} tasks...")
         except Exception as e:
-            print(f"[pulsar] Warning: Failed to process task {payload.get('hexagon')}: {e}")
+            print(
+                f"[pulsar] Warning: Failed to process task {payload.get('hexagon')}: {e}"
+            )
             continue
-    
+
     print(f"[pulsar] Successfully processed {processed} tasks")
-    
+
     # Generate forecasts for some sample hexagons
     print("\n[pulsar] Generating forecasts...")
     forecaster = SimpleForecaster(store)
-    
+
     # Get unique hexagon/service_type combinations from the data
-    unique_combos = csv_data[['hex_id', 'service_type']].drop_duplicates()
+    unique_combos = csv_data[["hex_id", "service_type"]].drop_duplicates()
     sample_size = min(10, len(unique_combos))
     sample_combos = unique_combos.head(sample_size)
-    
+
     all_forecasts = []
     for _, row in sample_combos.iterrows():
-        hexagon = int(row['hex_id'])
-        service_type = int(row['service_type'])
-        
+        hexagon = int(row["hex_id"])
+        service_type = int(row["service_type"])
+
         forecasts = forecaster.forecast(
             hexagon,
             service_type,
             cfg.forecast.horizons,
         )
-        
+
         if forecasts:
             for forecast in forecasts:
                 all_forecasts.append(forecast.as_dict())
@@ -103,7 +105,7 @@ def process_csv_files(
                 f"[pulsar] Forecast for hexagon {hexagon}, service_type {service_type}: "
                 f"{len(forecasts)} horizons"
             )
-    
+
     # Save forecasts to file
     if output_dir:
         output_dir = Path(output_dir)
@@ -120,7 +122,9 @@ def process_csv_files(
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Process CSV files and generate forecasts")
+    parser = argparse.ArgumentParser(
+        description="Process CSV files and generate forecasts"
+    )
     parser.add_argument(
         "--data-dir",
         type=Path,
@@ -138,18 +142,18 @@ def main():
         type=Path,
         help="Output directory for forecasts JSON (optional)",
     )
-    
+
     args = parser.parse_args()
-    
+
     try:
         process_csv_files(args.data_dir, args.config, args.output)
     except Exception as e:
         print(f"[pulsar] Error: {e}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 
 
 if __name__ == "__main__":
     main()
-

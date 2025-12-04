@@ -50,4 +50,3 @@ def with_duration(
         duration=timedelta(seconds=duration_seconds),
         collect_duration=timedelta(minutes=collect_minutes),
     )
-

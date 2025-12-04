@@ -8,25 +8,27 @@ import redis
 from ..periods import PeriodWindow
 
 
-def acceptance_rate_rr_key(period: PeriodWindow, hexagon: int, service_type: int) -> str:
-    return (
-        f"surge:ar:rr:period:{period.string()}:hex:{hexagon}:st:{service_type}:set"
-    )
+def acceptance_rate_rr_key(
+    period: PeriodWindow, hexagon: int, service_type: int
+) -> str:
+    return f"surge:ar:rr:period:{period.string()}:hex:{hexagon}:st:{service_type}:set"
 
 
-def acceptance_rate_ra_key(period: PeriodWindow, hexagon: int, service_type: int) -> str:
-    return (
-        f"surge:ar:ra:period:{period.string()}:hex:{hexagon}:st:{service_type}:set"
-    )
+def acceptance_rate_ra_key(
+    period: PeriodWindow, hexagon: int, service_type: int
+) -> str:
+    return f"surge:ar:ra:period:{period.string()}:hex:{hexagon}:st:{service_type}:set"
 
 
-def price_conversion_rr_key(period: PeriodWindow, hexagon: int, service_type: int) -> str:
-    return (
-        f"surge:pc:rr:period:{period.string()}:hex:{hexagon}:st:{service_type}:set"
-    )
+def price_conversion_rr_key(
+    period: PeriodWindow, hexagon: int, service_type: int
+) -> str:
+    return f"surge:pc:rr:period:{period.string()}:hex:{hexagon}:st:{service_type}:set"
 
 
-def price_conversion_gp_key(period: PeriodWindow, hexagon: int, service_category: int) -> str:
+def price_conversion_gp_key(
+    period: PeriodWindow, hexagon: int, service_category: int
+) -> str:
     return (
         f"surge:pc:gp:period:{period.string()}:hex:{hexagon}:sc:{service_category}:set"
     )
@@ -62,15 +64,24 @@ class RedisSignalLoader:
         except redis.RedisError:
             return 0
 
-    def acceptance_metrics(self, period: PeriodWindow, hexagon: int, service_type: int) -> Dict[str, int]:
+    def acceptance_metrics(
+        self, period: PeriodWindow, hexagon: int, service_type: int
+    ) -> Dict[str, int]:
         requests = self._scard(acceptance_rate_rr_key(period, hexagon, service_type))
         accepts = self._scard(acceptance_rate_ra_key(period, hexagon, service_type))
         return {"requests": requests, "accepts": accepts}
 
     def price_metrics(
-        self, period: PeriodWindow, hexagon: int, service_type: int, service_category: int
+        self,
+        period: PeriodWindow,
+        hexagon: int,
+        service_type: int,
+        service_category: int,
     ) -> Dict[str, int]:
-        ride_requests = self._scard(price_conversion_rr_key(period, hexagon, service_type))
-        get_prices = self._scard(price_conversion_gp_key(period, hexagon, service_category))
+        ride_requests = self._scard(
+            price_conversion_rr_key(period, hexagon, service_type)
+        )
+        get_prices = self._scard(
+            price_conversion_gp_key(period, hexagon, service_category)
+        )
         return {"ride_requests": ride_requests, "get_prices": get_prices}
-

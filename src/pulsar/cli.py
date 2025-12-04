@@ -9,7 +9,11 @@ from typing import Iterable, Tuple
 import redis
 import uvicorn
 
-from pulsar.clickhouse_nats import build_parameter_query, export_clickhouse_table, stream_clickhouse_table
+from pulsar.clickhouse_nats import (
+    build_parameter_query,
+    export_clickhouse_table,
+    stream_clickhouse_table,
+)
 from pulsar_core.config import PulsarConfig, load_config
 from pulsar_core.features import SnapshotBuilder
 from pulsar_core.models import SimpleForecaster
@@ -29,16 +33,26 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    sync_parser = subparsers.add_parser("sync", help="Ingest scheduler tasks and build snapshots")
-    sync_parser.add_argument("--task-file", type=Path, help="Optional JSON file with import tasks array")
-    sync_parser.add_argument("--canary", action="store_true", help="Listen to canary queues")
+    sync_parser = subparsers.add_parser(
+        "sync", help="Ingest scheduler tasks and build snapshots"
+    )
+    sync_parser.add_argument(
+        "--task-file", type=Path, help="Optional JSON file with import tasks array"
+    )
+    sync_parser.add_argument(
+        "--canary", action="store_true", help="Listen to canary queues"
+    )
 
     api_parser = subparsers.add_parser("api", help="Serve forecast API")
     api_parser.add_argument("--host", default="0.0.0.0")
     api_parser.add_argument("--port", type=int, default=8088)
 
-    train_parser = subparsers.add_parser("train", help="Train ML model and log to MLflow")
-    train_parser.add_argument("--service-types", type=int, nargs="*", default=[], help="Filter service types")
+    train_parser = subparsers.add_parser(
+        "train", help="Train ML model and log to MLflow"
+    )
+    train_parser.add_argument(
+        "--service-types", type=int, nargs="*", default=[], help="Filter service types"
+    )
     train_parser.add_argument("--alpha", type=float, default=0.3)
     train_parser.add_argument("--l1-ratio", type=float, default=0.1)
     train_parser.add_argument(
@@ -47,7 +61,9 @@ def build_parser() -> argparse.ArgumentParser:
         default="elasticnet",
         help="Select training backend",
     )
-    train_parser.add_argument("--cnn-window", type=int, default=12, help="Sequence window size for CNN model")
+    train_parser.add_argument(
+        "--cnn-window", type=int, default=12, help="Sequence window size for CNN model"
+    )
     train_parser.add_argument("--cnn-epochs", type=int, default=25)
     train_parser.add_argument("--cnn-batch-size", type=int, default=128)
 
@@ -60,11 +76,19 @@ def build_parser() -> argparse.ArgumentParser:
         default="snapp_raw_log.kandoo_parameter_nats",
         help="ClickHouse table name to read",
     )
-    ch_parser.add_argument("--batch-size", type=int, default=1000, help="Rows per published batch")
-    ch_parser.add_argument("--limit", type=int, help="Optional maximum row count to send")
+    ch_parser.add_argument(
+        "--batch-size", type=int, default=1000, help="Rows per published batch"
+    )
+    ch_parser.add_argument(
+        "--limit", type=int, help="Optional maximum row count to send"
+    )
     ch_parser.add_argument("--subject", help="Override the configured NATS subject")
-    ch_parser.add_argument("--start-date", required=True, help="ISO timestamp lower bound (UTC)")
-    ch_parser.add_argument("--end-date", required=True, help="ISO timestamp upper bound (UTC)")
+    ch_parser.add_argument(
+        "--start-date", required=True, help="ISO timestamp lower bound (UTC)"
+    )
+    ch_parser.add_argument(
+        "--end-date", required=True, help="ISO timestamp upper bound (UTC)"
+    )
     ch_parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -90,7 +114,9 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(list(argv) if argv is not None else None)
 
 
-def build_runtime(cfg: PulsarConfig) -> Tuple[SnapshotBuilder, TimeSeriesStore, SimpleForecaster]:
+def build_runtime(
+    cfg: PulsarConfig,
+) -> Tuple[SnapshotBuilder, TimeSeriesStore, SimpleForecaster]:
     redis_client = redis.from_url(cfg.redis.prepared_slave.url())
     loader = RedisSignalLoader(redis_client)
     builder = SnapshotBuilder(cfg, loader)
@@ -99,19 +125,25 @@ def build_runtime(cfg: PulsarConfig) -> Tuple[SnapshotBuilder, TimeSeriesStore, 
     return builder, store, forecaster
 
 
-def process_snapshot(builder: SnapshotBuilder, store: TimeSeriesStore, task: ImportTask) -> None:
+def process_snapshot(
+    builder: SnapshotBuilder, store: TimeSeriesStore, task: ImportTask
+) -> None:
     snapshot = builder.build(task)
     store.append(snapshot)
 
 
-async def run_consumer_mode(cfg: PulsarConfig, builder: SnapshotBuilder, store: TimeSeriesStore, canary: bool) -> None:
+async def run_consumer_mode(
+    cfg: PulsarConfig, builder: SnapshotBuilder, store: TimeSeriesStore, canary: bool
+) -> None:
     async def handler(task: ImportTask) -> None:
         process_snapshot(builder, store, task)
 
     await run_consumer(cfg, handler, canary=canary)
 
 
-def handle_offline_tasks(builder: SnapshotBuilder, store: TimeSeriesStore, task_file: Path) -> None:
+def handle_offline_tasks(
+    builder: SnapshotBuilder, store: TimeSeriesStore, task_file: Path
+) -> None:
     payloads = json.loads(task_file.read_text())
     for payload in payloads:
         task = ImportTask.from_payload(payload)
@@ -158,7 +190,9 @@ def main(argv: Iterable[str] | None = None) -> None:
         return
 
     if args.command == "clickhouse-export":
-        query, columns = build_parameter_query(args.table, args.start_date, args.end_date)
+        query, columns = build_parameter_query(
+            args.table, args.start_date, args.end_date
+        )
 
         if args.run_once:
             summary = export_clickhouse_table(

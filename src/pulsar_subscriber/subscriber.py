@@ -1,6 +1,7 @@
 import asyncio
 from nats.aio.client import Client as NatsClient
 
+
 async def subscribe(address, subject):
     nc = NatsClient()
 

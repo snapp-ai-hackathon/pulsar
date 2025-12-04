@@ -55,7 +55,9 @@ class PipelineConfig:
         data = json.loads(Path(path).read_text())
         horizons = [
             HorizonConfig(**item)
-            for item in data.get("horizons", [{"minutes": 30}, {"minutes": 60}, {"minutes": 90}])
+            for item in data.get(
+                "horizons", [{"minutes": 30}, {"minutes": 60}, {"minutes": 90}]
+            )
         ]
         return cls(
             city=data.get("city", cls.city),
@@ -82,9 +84,14 @@ class DemandPipeline:
         df["driver_id"] = df["driver_id"].fillna(0).astype(int)
         df["bucket"] = df["timestamp"].dt.floor(f"{self.config.interval_minutes}min")
         df["hex_id"] = df.apply(
-            lambda row: h3.latlng_to_cell(row["lat"], row["lng"], self.config.h3_resolution), axis=1
+            lambda row: h3.latlng_to_cell(
+                row["lat"], row["lng"], self.config.h3_resolution
+            ),
+            axis=1,
         )
-        df["is_completed"] = (df["event_type"] == "ride_completed") & (df["status"] == "done")
+        df["is_completed"] = (df["event_type"] == "ride_completed") & (
+            df["status"] == "done"
+        )
         df["is_request"] = df["event_type"] == "ride_request"
         df["is_get_price"] = df["event_type"] == "get_price"
         df["is_cancelled"] = df["event_type"] == "ride_cancelled"
@@ -102,14 +109,24 @@ class DemandPipeline:
                 requests=("is_request", "sum"),
                 get_prices=("is_get_price", "sum"),
                 cancelled=("is_cancelled", "sum"),
-                drivers=("driver_id", lambda x: x.astype(int).replace(0, np.nan).nunique()),
-                avg_fare=("fare", lambda x: x[x > 0].mean() if len(x[x > 0]) else np.nan),
+                drivers=(
+                    "driver_id",
+                    lambda x: x.astype(int).replace(0, np.nan).nunique(),
+                ),
+                avg_fare=(
+                    "fare",
+                    lambda x: x[x > 0].mean() if len(x[x > 0]) else np.nan,
+                ),
             )
             .reset_index()
         )
         grouped["drivers"] = grouped["drivers"].ffill().fillna(8)
-        grouped["acceptance_rate"] = grouped["completed"] / grouped["requests"].clip(lower=1)
-        grouped["price_conversion"] = grouped["requests"] / grouped["get_prices"].clip(lower=1)
+        grouped["acceptance_rate"] = grouped["completed"] / grouped["requests"].clip(
+            lower=1
+        )
+        grouped["price_conversion"] = grouped["requests"] / grouped["get_prices"].clip(
+            lower=1
+        )
         grouped["demand_signal"] = grouped["requests"] + 0.5 * grouped["get_prices"]
         grouped["supply_signal"] = grouped["drivers"].clip(lower=1)
         grouped["net_gap"] = grouped["demand_signal"] - grouped["supply_signal"]
@@ -122,10 +139,16 @@ class DemandPipeline:
         agg = self.aggregated
         results: List[Dict[str, object]] = []
         interval = timedelta(minutes=self.config.interval_minutes)
-        for (city, service_type, hex_id), chunk in agg.groupby(["city", "service_type", "hex_id"]):
+        for (city, service_type, hex_id), chunk in agg.groupby(
+            ["city", "service_type", "hex_id"]
+        ):
             chunk = chunk.set_index("bucket").sort_index()
-            demand_series = chunk["demand_signal"].asfreq(interval, method="ffill").fillna(0)
-            supply_series = chunk["supply_signal"].asfreq(interval, method="ffill").ffill()
+            demand_series = (
+                chunk["demand_signal"].asfreq(interval, method="ffill").fillna(0)
+            )
+            supply_series = (
+                chunk["supply_signal"].asfreq(interval, method="ffill").ffill()
+            )
             if demand_series.empty:
                 continue
             last_bucket = demand_series.index.max()
@@ -136,7 +159,10 @@ class DemandPipeline:
                 forecast_value = self._holts_linear(demand_series, steps)
                 driver_gap = forecast_value - last_supply
                 surge_delta = self._estimate_surge_percent(
-                    last_demand, forecast_value, horizon.max_surge_percent, horizon.min_surge_percent
+                    last_demand,
+                    forecast_value,
+                    horizon.max_surge_percent,
+                    horizon.min_surge_percent,
                 )
                 results.append(
                     {
@@ -161,7 +187,9 @@ class DemandPipeline:
         trend = (values.diff().tail(3).mean()) if len(values) > 1 else 0
         return float(max(level + trend * steps, 0))
 
-    def _estimate_surge_percent(self, current: float, forecast: float, max_cap: int, min_cap: int) -> float:
+    def _estimate_surge_percent(
+        self, current: float, forecast: float, max_cap: int, min_cap: int
+    ) -> float:
         delta = forecast - current
         if abs(current) < 1:
             current = 1
@@ -204,7 +232,9 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Persist forecasts to pulsar/prototype/cache/forecast.json",
     )
-    parser.add_argument("--print", action="store_true", help="Print ranked forecasts to stdout.")
+    parser.add_argument(
+        "--print", action="store_true", help="Print ranked forecasts to stdout."
+    )
     return parser.parse_args()
 
 
@@ -222,4 +252,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

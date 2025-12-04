@@ -116,7 +116,9 @@ def _iter_clickhouse_batches(
     if columns:
         column_names = list(columns)
     elif described_table:
-        column_names = [row[0] for row in client.execute(f"DESCRIBE TABLE {described_table}")]
+        column_names = [
+            row[0] for row in client.execute(f"DESCRIBE TABLE {described_table}")
+        ]
     else:
         raise ValueError("columns must be provided when describing arbitrary queries")
 
@@ -160,7 +162,9 @@ async def _publish_batches(
             batches_sent += 1
             rows_sent += len(batch)
             print(f"[pulsar] dry-run batch {batches_sent}: {len(batch)} rows")
-        return PublishSummary(table=table, subject=subject, batches=batches_sent, rows=rows_sent)
+        return PublishSummary(
+            table=table, subject=subject, batches=batches_sent, rows=rows_sent
+        )
 
     nc = await nats.connect(address)
     try:
@@ -178,7 +182,9 @@ async def _publish_batches(
     finally:
         await nc.drain()
 
-    return PublishSummary(table=table, subject=subject, batches=batches_sent, rows=rows_sent)
+    return PublishSummary(
+        table=table, subject=subject, batches=batches_sent, rows=rows_sent
+    )
 
 
 def export_clickhouse_table(
@@ -254,7 +260,9 @@ def _format_clickhouse_timestamp(value: str) -> str:
     return dt.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
 
-def build_parameter_query(table: str, start: str, end: str) -> Tuple[str, Sequence[str]]:
+def build_parameter_query(
+    table: str, start: str, end: str
+) -> Tuple[str, Sequence[str]]:
     start_fmt = _format_clickhouse_timestamp(start)
     end_fmt = _format_clickhouse_timestamp(end)
     query = PARAMETER_QUERY.format(
