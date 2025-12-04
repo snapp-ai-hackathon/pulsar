@@ -2,8 +2,6 @@
 .venv
 .cache
 __pycache__/
-cache/
-mlruns/
 node_modules/
 *.pyc
 data/
