@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # NATS configuration (required for mode: nats_clickhouse or train-online)
 # nats:
 #   servers:
@@ -21,6 +22,34 @@ nats:
   address: nats://localhost:4222
   subject: surge
 
+=======
+redis:
+  raw_master: { host: 127.0.0.1, port: 6379, db: 0 }
+  raw_slave: { host: 127.0.0.1, port: 6379, db: 0 }
+  prepared_master: { host: 127.0.0.1, port: 6379, db: 0 }
+  prepared_slave: { host: 127.0.0.1, port: 6379, db: 0 }
+rabbitmq:
+  host: 127.0.0.1
+  port: 5672
+  user: guest
+  password: guest
+  vhost: /
+  queues:
+    mru: kandoo.mru
+    lru: kandoo.lru
+    canary_mru: kandoo.canary.mru
+    canary_lru: kandoo.canary.lru
+clickhouse:
+  host: 127.0.0.1
+  port: 9000
+  database: default
+  user: default
+  password: ""
+  secure: false
+nats:
+  address: nats://127.0.0.1:4222
+  subject: pulsar.clickhouse
+>>>>>>> 32b954a (feat: define application to fetch records from clickhouse and publish to nats)
 forecast:
   horizons: [30, 60, 90]
   min_history_points: 8
@@ -30,7 +59,12 @@ forecast:
 cache_dir: cache
 period_duration_minutes: 7.5
 collect_duration_minutes: 5.5
+<<<<<<< HEAD
 
 # MLflow configuration (optional)
 # mlflow_tracking_uri: http://mlflow.snapp.ir
 # mlflow_experiment: pulsar-forecast
+=======
+mlflow_tracking_uri:
+mlflow_experiment: pulsar-forecast
+>>>>>>> 32b954a (feat: define application to fetch records from clickhouse and publish to nats)

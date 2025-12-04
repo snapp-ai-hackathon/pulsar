@@ -1,6 +1,29 @@
+redis:
+  raw_master: { host: 127.0.0.1, port: 6379, db: 0 }
+  raw_slave: { host: 127.0.0.1, port: 6379, db: 0 }
+  prepared_master: { host: 127.0.0.1, port: 6379, db: 0 }
+  prepared_slave: { host: 127.0.0.1, port: 6379, db: 0 }
+rabbitmq:
+  host: 127.0.0.1
+  port: 5672
+  user: guest
+  password: guest
+  vhost: /
+  queues:
+    mru: kandoo.mru
+    lru: kandoo.lru
+    canary_mru: kandoo.canary.mru
+    canary_lru: kandoo.canary.lru
+clickhouse:
+  host: 127.0.0.1
+  port: 9000
+  database: default
+  user: default
+  password: ""
+  secure: false
 nats:
-  address: nats://localhost:4222
-  subject: surge
+  address: nats://127.0.0.1:4222
+  subject: pulsar.clickhouse
 forecast:
   horizons: [30, 60, 90]
   min_history_points: 8
@@ -10,4 +33,5 @@ forecast:
 cache_dir: cache
 period_duration_minutes: 7.5
 collect_duration_minutes: 5.5
-
+mlflow_tracking_uri:
+mlflow_experiment: pulsar-forecast

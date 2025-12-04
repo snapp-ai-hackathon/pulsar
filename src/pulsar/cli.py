@@ -14,6 +14,7 @@ from datetime import date
 
 import redis
 
+from pulsar.clickhouse_nats import build_parameter_query, export_clickhouse_table, stream_clickhouse_table
 from pulsar_core.config import PulsarConfig, load_config
 
 # Configure basic logging so progress information is visible on the CLI
@@ -38,7 +39,11 @@ from pulsar_core.store import TimeSeriesStore
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Pulsar bridge runner")
-    parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument(
+        "--config",
+        type=Path,
+        help="Path to config file (defaults to $PULSAR_CONFIG or ./config.yaml)",
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     sync_parser = subparsers.add_parser("sync", help="Ingest scheduler tasks and build snapshots")
@@ -69,6 +74,45 @@ def build_parser() -> argparse.ArgumentParser:
     train_parser.add_argument("--train-date", type=str, help="Date to mark as trained (YYYY-MM-DD), defaults to today")
     train_parser.add_argument("--force", action="store_true", help="Force retraining even if date is already trained")
     train_parser.add_argument("--show-tracker", action="store_true", help="Show training tracker status")
+
+    ch_parser = subparsers.add_parser(
+        "clickhouse-export",
+        help="Fetch a ClickHouse table in batches and publish them to NATS",
+    )
+    ch_parser.add_argument(
+        "--table",
+        default="snapp_raw_log.kandoo_parameter_nats",
+        help="ClickHouse table name to read",
+    )
+    ch_parser.add_argument("--batch-size", type=int, default=1000, help="Rows per published batch")
+    ch_parser.add_argument("--limit", type=int, help="Optional maximum row count to send")
+    ch_parser.add_argument("--subject", help="Override the configured NATS subject")
+    ch_parser.add_argument(
+        "--start-date",
+        required=True,
+        help="ISO-8601 timestamp (UTC) for the lower bound filter",
+    )
+    ch_parser.add_argument(
+        "--end-date",
+        required=True,
+        help="ISO-8601 timestamp (UTC) for the upper bound filter",
+    )
+    ch_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Run the ClickHouse query but log batches instead of publishing",
+    )
+    ch_parser.add_argument(
+        "--poll-interval",
+        type=float,
+        default=60.0,
+        help="Seconds to sleep before rerunning the export when following",
+    )
+    ch_parser.add_argument(
+        "--run-once",
+        action="store_true",
+        help="Run a single export iteration instead of looping forever",
+    )
 
     return parser
 
@@ -287,6 +331,49 @@ def main(argv: Iterable[str] | None = None) -> None:
             handle_offline_tasks(builder, store, args.task_file)
         else:
             asyncio.run(run_consumer_mode(cfg, builder, store, canary=args.canary))
+        return
+
+    if args.command == "clickhouse-export":
+        query, columns = build_parameter_query(args.table, args.start_date, args.end_date)
+
+        if args.run_once:
+            summary = export_clickhouse_table(
+                cfg,
+                table=args.table,
+                batch_size=args.batch_size,
+                limit=args.limit,
+                subject_override=args.subject,
+                dry_run=args.dry_run,
+                query=query,
+                columns=columns,
+            )
+            print(
+                f"[pulsar] published {summary.rows} rows across {summary.batches} batches "
+                f"to subject {summary.subject}"
+            )
+            return
+
+        print(
+            "[pulsar] starting continuous ClickHouse export. Press Ctrl+C to stop.",
+        )
+        try:
+            for iteration, summary in stream_clickhouse_table(
+                cfg,
+                table=args.table,
+                batch_size=args.batch_size,
+                limit=args.limit,
+                subject_override=args.subject,
+                dry_run=args.dry_run,
+                poll_interval=args.poll_interval,
+                query=query,
+                columns=columns,
+            ):
+                print(
+                    f"[pulsar] iteration {iteration}: published {summary.rows} rows across "
+                    f"{summary.batches} batches to subject {summary.subject}"
+                )
+        except KeyboardInterrupt:
+            print("[pulsar] clickhouse-export stopped by user")
         return
 
     raise ValueError(f"unsupported command: {args.command}")

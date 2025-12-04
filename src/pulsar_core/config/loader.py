@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 import yaml
 from pydantic import BaseModel, Field, validator
+
+DEFAULT_CONFIG_FILENAMES = ("config.yaml", "config.yml")
+CONFIG_ENV_VAR = "PULSAR_CONFIG"
 
 
 class RedisNode(BaseModel):
@@ -82,11 +86,24 @@ class ForecastConfig(BaseModel):
         return value
 
 
+class ClickHouseConfig(BaseModel):
+    host: str = "127.0.0.1"
+    port: int = 9000
+    database: str = "default"
+    user: str = "default"
+    password: Optional[str] = None
+    secure: bool = False
+    settings: Dict[str, Any] = Field(default_factory=dict)
+
+
+class NatsConfig(BaseModel):
+    address: str = "nats://127.0.0.1:4222"
+    subject: str = "pulsar.clickhouse"
+
+
 class PulsarConfig(BaseModel):
-    redis: Optional[RedisConfig] = None
-    rabbitmq: Optional[RabbitConfig] = None
-    nats: Optional[NATSConfig] = None
-    clickhouse: Optional[ClickHouseConfig] = None
+    clickhouse: ClickHouseConfig = Field(default_factory=ClickHouseConfig)
+    nats: NatsConfig = Field(default_factory=NatsConfig)
     forecast: ForecastConfig = Field(default_factory=ForecastConfig)
     cache_dir: Path = Path("cache")
     period_duration_minutes: float = 7.5
@@ -101,8 +118,29 @@ class PulsarConfig(BaseModel):
         return self.cache_dir
 
 
-def load_config(path: Path | str) -> PulsarConfig:
-    config_path = Path(path)
+def resolve_config_path(explicit_path: Path | str | None = None) -> Path:
+    candidates = []
+    if explicit_path is not None:
+        candidates.append(Path(explicit_path))
+    env_path = os.environ.get(CONFIG_ENV_VAR)
+    if env_path:
+        candidates.append(Path(env_path))
+    if not explicit_path and not env_path:
+        for name in DEFAULT_CONFIG_FILENAMES:
+            candidates.append(Path(name))
+
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+
+    locations = [str(path) for path in candidates]
+    raise FileNotFoundError(
+        "Unable to find Pulsar config file. Provide --config, set PULSAR_CONFIG,"
+        f" or create one of: {', '.join(DEFAULT_CONFIG_FILENAMES)}. Checked: {locations}"
+    )
+
+
+def load_config(path: Path | str | None = None) -> PulsarConfig:
+    config_path = resolve_config_path(path)
     data = yaml.safe_load(config_path.read_text())
     return PulsarConfig.parse_obj(data)
-

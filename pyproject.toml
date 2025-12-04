@@ -28,27 +28,20 @@ dependencies = [
   "pika>=1.3.2",
   "nats-py>=2.7.0",
   "clickhouse-connect>=0.8.0",
+  "clickhouse-driver>=0.2.9",
 ]
 
 [project.scripts]
 pulsar = "pulsar.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = [
-  "src/pulsar",
-  "src/pulsar_core",
-]
+packages = ["src/pulsar", "src/pulsar_core"]
 
 [tool.hatch.build]
-include = [
-  "src/pulsar_core/templates/forecast.html",
-]
+include = ["src/pulsar_core/templates/forecast.html"]
 
 [dependency-groups]
-dev = [
-  "pytest>=8.3.0",
-  "ruff>=0.6.3",
-]
+dev = ["pytest>=8.3.0", "ruff>=0.6.3"]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
