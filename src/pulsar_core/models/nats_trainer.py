@@ -4,7 +4,7 @@ import asyncio
 import json
 import logging
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date
 from typing import List, Optional
 
 import mlflow
@@ -138,9 +138,9 @@ class NatsMLTrainer:
                                 "supply_signal": supply_signal,
                                 "surge_percent": surge_percent,
                                 "surge_absolute": surge_absolute,
-                            }
-                        ]
-                    )
+                            },
+                        ],
+                    ),
                 )
             except (ValueError, KeyError, TypeError) as exc:
                 logger.debug(f"Skipping invalid row: {exc}")
