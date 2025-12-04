@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import csv
+import logging
+import os
+import tempfile
 from dataclasses import dataclass
 from datetime import date
 from typing import List, Optional
@@ -14,6 +18,8 @@ from sklearn.model_selection import train_test_split
 from ..config import PulsarConfig
 from ..store import TimeSeriesStore
 from .training_tracker import TrainingTracker
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -128,6 +134,16 @@ class MLTrainer:
         mae = float(mean_absolute_error(y_test, preds))
         rmse = float(np.sqrt(mean_squared_error(y_test, preds)))
 
+        # Log sample predictions vs actuals for inspection
+        sample_size = min(10, len(preds))
+        sample_indices = np.random.choice(len(preds), sample_size, replace=False)
+        logger.info("Sample predictions vs actuals:")
+        for idx in sample_indices:
+            logger.info(
+                f"  Prediction: {preds[idx]:.2f}, Actual: {y_test.iloc[idx]:.2f}, "
+                f"Error: {abs(preds[idx] - y_test.iloc[idx]):.2f}"
+            )
+
         if self.cfg.mlflow_tracking_uri:
             mlflow.set_tracking_uri(self.cfg.mlflow_tracking_uri)
         mlflow.set_experiment(self.cfg.mlflow_experiment)
@@ -143,6 +159,27 @@ class MLTrainer:
             mlflow.log_metric("rmse", rmse)
             mlflow.log_metric("hexagons", dataset["hexagon"].nunique())
             mlflow.log_metric("rows", len(dataset))
+            # Log sample predictions as artifacts for inspection
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".csv", delete=False
+            ) as f:
+                writer = csv.writer(f)
+                writer.writerow(["actual", "predicted", "error"])
+                for i in range(min(100, len(preds))):  # Log first 100 predictions
+                    writer.writerow(
+                        [
+                            float(y_test.iloc[i]),
+                            float(preds[i]),
+                            float(abs(preds[i] - y_test.iloc[i])),
+                        ]
+                    )
+                temp_path = f.name
+
+            try:
+                mlflow.log_artifact(temp_path, artifact_path="predictions")
+            finally:
+                os.unlink(temp_path)
+
             model_info = mlflow.sklearn.log_model(model, artifact_path="model")
             model_uri = model_info.model_uri
 
