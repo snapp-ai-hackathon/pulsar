@@ -6,6 +6,7 @@
    python scripts/process_csv_data.py --config config.yaml --data-dir data --output cache
    ```
 3. Train a model:
+
    ```bash
    # ElasticNet baseline
    python app.py --config config.yaml train --service-types 1 5 7
@@ -13,6 +14,7 @@
    # CNN surge forecaster
    python app.py --config config.yaml train --model-type cnn --service-types 1 5 7 --cnn-window 12 --cnn-epochs 10
    ```
+
 4. Serve forecasts and inspect the UI:
    ```bash
    python app.py --config config.yaml api
