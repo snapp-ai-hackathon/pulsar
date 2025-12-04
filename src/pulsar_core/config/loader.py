@@ -70,6 +70,24 @@ class ClickHouseConfig(BaseModel):
     secure: bool = False
     settings: Dict[str, Any] = Field(default_factory=dict)
 
+    @validator("port")
+    def _valid_port(cls, v: int) -> int:
+        if not 1 <= v <= 65535:
+            raise ValueError("port must be between 1 and 65535")
+        return v
+
+    @validator("host")
+    def _valid_host(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("host cannot be empty")
+        return v.strip()
+
+    @validator("database")
+    def _valid_database(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("database cannot be empty")
+        return v.strip()
+
 
 class NatsConfig(BaseModel):
     address: str = "nats://127.0.0.1:4222"

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from importlib import resources
-from typing import List
+from importlib import metadata, resources
+from typing import Any, Dict, List
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse
@@ -18,6 +18,61 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
     if not template_path.is_file():
         raise FileNotFoundError(f"template not found: {template_path}")
     template_html = template_path.read_text(encoding="utf-8")
+    deployment_template_path = resources.files("pulsar_core").joinpath(
+        "templates/deployment.html"
+    )
+    if not deployment_template_path.is_file():
+        raise FileNotFoundError(f"template not found: {deployment_template_path}")
+    deployment_template_html = deployment_template_path.read_text(encoding="utf-8")
+
+    try:
+        package_version = metadata.version("pulsar")
+    except metadata.PackageNotFoundError:
+        package_version = "0.0.0-dev"
+
+    deployment_snapshot: Dict[str, Any] = {
+        "version": package_version,
+        "cache_dir": str(cfg.cache_dir),
+        "period_duration_minutes": cfg.period_duration_minutes,
+        "collect_duration_minutes": cfg.collect_duration_minutes,
+        "mlflow_enabled": bool(cfg.mlflow_tracking_uri),
+        "forecast": {
+            "horizons": cfg.forecast.horizons,
+            "service_types": cfg.forecast.service_types,
+            "min_history_points": cfg.forecast.min_history_points,
+            "max_history_points": cfg.forecast.max_history_points,
+        },
+        "redis": {
+            "raw_slave": {
+                "host": cfg.redis.raw_slave.host,
+                "port": cfg.redis.raw_slave.port,
+                "db": cfg.redis.raw_slave.db,
+                "ssl": cfg.redis.raw_slave.ssl,
+            },
+            "prepared_slave": {
+                "host": cfg.redis.prepared_slave.host,
+                "port": cfg.redis.prepared_slave.port,
+                "db": cfg.redis.prepared_slave.db,
+                "ssl": cfg.redis.prepared_slave.ssl,
+            },
+        },
+        "rabbitmq": {
+            "host": cfg.rabbitmq.host,
+            "port": cfg.rabbitmq.port,
+            "vhost": cfg.rabbitmq.vhost,
+            "queues": cfg.rabbitmq.queues.dict(),
+        },
+        "clickhouse": {
+            "host": cfg.clickhouse.host,
+            "port": cfg.clickhouse.port,
+            "database": cfg.clickhouse.database,
+            "secure": cfg.clickhouse.secure,
+        },
+        "nats": {
+            "address": cfg.nats.address,
+            "subject": cfg.nats.subject,
+        },
+    }
 
     app = FastAPI(title="Pulsar Bridge API")
 
@@ -27,6 +82,14 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
     @app.get("/", response_class=HTMLResponse)
     async def forecast_ui() -> str:
         return template_html
+
+    @app.get("/deployment", response_class=HTMLResponse)
+    async def deployment_ui() -> str:
+        return deployment_template_html
+
+    @app.get("/deployment/meta")
+    async def deployment_meta() -> Dict[str, Any]:
+        return deployment_snapshot
 
     @app.get("/healthz")
     async def health():

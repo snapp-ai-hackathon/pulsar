@@ -36,7 +36,10 @@ pulsar = "pulsar.cli:main"
 packages = ["src/pulsar", "src/pulsar_core"]
 
 [tool.hatch.build]
-include = ["src/pulsar_core/templates/forecast.html"]
+include = [
+  "src/pulsar_core/templates/forecast.html",
+  "src/pulsar_core/templates/deployment.html",
+]
 
 [dependency-groups]
 dev = [

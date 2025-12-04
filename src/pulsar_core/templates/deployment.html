@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pulsar Deployment Review</title>
+    <style>
+      :root {
+        --bg: #0b1222;
+        --panel: #0f172a;
+        --muted: #94a3b8;
+        --border: #1f2a44;
+        --accent: #22d3ee;
+        --accent-2: #a855f7;
+        --danger: #f87171;
+        --success: #34d399;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Space Grotesk", "Inter", system-ui, -apple-system, sans-serif;
+        background: radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.08), transparent 35%),
+          radial-gradient(circle at 80% 0%, rgba(168, 85, 247, 0.1), transparent 45%),
+          var(--bg);
+        color: #e2e8f0;
+        padding: 32px 18px 64px;
+      }
+      .container {
+        max-width: 1140px;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 0 0 8px 0;
+        font-size: 28px;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 4px 0 24px 0;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 14px;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px 18px;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.25);
+      }
+      .card h3 {
+        margin: 0 0 10px 0;
+        font-size: 15px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #cbd5f5;
+      }
+      .value {
+        font-size: 22px;
+        font-weight: 700;
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        color: #e2e8f0;
+        background: rgba(255, 255, 255, 0.02);
+        font-size: 12px;
+      }
+      .pill.good {
+        border-color: rgba(52, 211, 153, 0.4);
+        color: var(--success);
+      }
+      .pill.bad {
+        border-color: rgba(248, 113, 113, 0.4);
+        color: var(--danger);
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .row .card {
+        flex: 1;
+        min-width: 280px;
+      }
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+      .list-item {
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .list-item strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+      .btn {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 14px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        color: #0b1222;
+        background: linear-gradient(120deg, var(--accent), var(--accent-2));
+        box-shadow: 0 12px 30px rgba(34, 211, 238, 0.25);
+      }
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .stack {
+        display: grid;
+        gap: 10px;
+      }
+      .input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.03);
+        color: #e2e8f0;
+      }
+      .status-bar {
+        margin-top: 12px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      code {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 2px 6px;
+        border-radius: 6px;
+        border: 1px solid var(--border);
+        font-size: 13px;
+        color: #e5e7eb;
+      }
+      @media (max-width: 600px) {
+        body {
+          padding: 24px 14px 48px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Pulsar Deployment Review</h1>
+      <p>Quick check to validate the running deployment, API health, and configured endpoints.</p>
+
+      <div class="grid" id="snapshot-cards">
+        <div class="card">
+          <h3>Version</h3>
+          <div class="value" id="version">...</div>
+          <div class="muted">Package version reported by the runtime.</div>
+        </div>
+        <div class="card">
+          <h3>Cache</h3>
+          <div class="value" id="cacheDir">...</div>
+          <div class="muted">Timeseries directory path.</div>
+        </div>
+        <div class="card">
+          <h3>MLflow</h3>
+          <div class="value" id="mlflowState">...</div>
+          <div class="muted">Whether tracking is configured.</div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 18px;">
+        <div class="card">
+          <h3>Health Check</h3>
+          <div class="stack">
+            <button class="btn" id="healthBtn" onclick="checkHealth()">Ping /healthz</button>
+            <div class="status-bar" id="healthStatus">Awaiting ping...</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Smoke Forecast</h3>
+          <div class="stack">
+            <input class="input" id="hexInput" placeholder="Hexagon ID (e.g. 613280476251029503)" />
+            <input class="input" id="serviceInput" placeholder="Service type (e.g. 1)" />
+            <input class="input" id="horizonInput" placeholder="Horizons, comma-separated (e.g. 30,60,90)" />
+            <button class="btn" id="forecastBtn" onclick="runForecast()">Call /forecast</button>
+            <div class="status-bar" id="forecastStatus">Ready to test.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top: 18px;">
+        <div class="card">
+          <h3>Forecast Settings</h3>
+          <div class="list" id="forecastList"></div>
+        </div>
+        <div class="card">
+          <h3>Data Endpoints</h3>
+          <div class="list" id="endpointList"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let deploymentMeta = null;
+
+      function renderEndpointList(meta) {
+        const list = document.getElementById("endpointList");
+        list.innerHTML = "";
+        const rows = [
+          ["Redis raw (read)", `${meta.redis.raw_slave.host}:${meta.redis.raw_slave.port}/${meta.redis.raw_slave.db} ${meta.redis.raw_slave.ssl ? "(TLS)" : ""}`],
+          ["Redis prepared (read)", `${meta.redis.prepared_slave.host}:${meta.redis.prepared_slave.port}/${meta.redis.prepared_slave.db} ${meta.redis.prepared_slave.ssl ? "(TLS)" : ""}`],
+          ["RabbitMQ", `${meta.rabbitmq.host}:${meta.rabbitmq.port} - vhost ${meta.rabbitmq.vhost}`],
+          ["NATS", `${meta.nats.address} (${meta.nats.subject})`],
+          ["ClickHouse", `${meta.clickhouse.host}:${meta.clickhouse.port}/${meta.clickhouse.database} ${meta.clickhouse.secure ? "(secure)" : ""}`],
+        ];
+        rows.forEach(([label, value]) => {
+          const item = document.createElement("div");
+          item.className = "list-item";
+          item.innerHTML = `<strong>${label}</strong><span class="muted">${value}</span>`;
+          list.appendChild(item);
+        });
+        const queues = document.createElement("div");
+        queues.className = "list-item";
+        queues.innerHTML = `<strong>Rabbit queues</strong><code>${Object.values(meta.rabbitmq.queues).join(", ")}</code>`;
+        list.appendChild(queues);
+      }
+
+      function renderForecastList(meta) {
+        const list = document.getElementById("forecastList");
+        list.innerHTML = "";
+        const items = [
+          ["Horizons", meta.forecast.horizons.join(", ") + " min"],
+          ["Service types", meta.forecast.service_types.join(", ")],
+          ["Min history points", meta.forecast.min_history_points],
+          ["Max history points", meta.forecast.max_history_points],
+          ["Period duration (min)", meta.period_duration_minutes],
+          ["Collect duration (min)", meta.collect_duration_minutes],
+        ];
+        items.forEach(([label, value]) => {
+          const item = document.createElement("div");
+          item.className = "list-item";
+          item.innerHTML = `<strong>${label}</strong><span class="muted">${value}</span>`;
+          list.appendChild(item);
+        });
+      }
+
+      async function loadMeta() {
+        try {
+          const res = await fetch("/deployment/meta");
+          if (!res.ok) throw new Error("Failed to load deployment metadata");
+          const data = await res.json();
+          deploymentMeta = data;
+          document.getElementById("version").textContent = data.version;
+          document.getElementById("cacheDir").textContent = data.cache_dir;
+          document.getElementById("mlflowState").innerHTML = data.mlflow_enabled
+            ? '<span class="pill good">Enabled</span>'
+            : '<span class="pill bad">Disabled</span>';
+          renderEndpointList(data);
+          renderForecastList(data);
+          if (data.forecast?.service_types?.length) {
+            document.getElementById("serviceInput").value = data.forecast.service_types[0];
+          }
+          if (data.forecast?.horizons?.length) {
+            document.getElementById("horizonInput").value = data.forecast.horizons.join(",");
+          }
+        } catch (err) {
+          document.getElementById("version").textContent = "unknown";
+          document.getElementById("cacheDir").textContent = "unknown";
+          document.getElementById("mlflowState").textContent = err.message;
+          document.getElementById("forecastList").innerHTML = `<div class="muted">${err.message}</div>`;
+          document.getElementById("endpointList").innerHTML = `<div class="muted">${err.message}</div>`;
+        }
+      }
+
+      async function checkHealth() {
+        const btn = document.getElementById("healthBtn");
+        const status = document.getElementById("healthStatus");
+        btn.disabled = true;
+        status.textContent = "Pinging /healthz...";
+        try {
+          const res = await fetch("/healthz");
+          const data = await res.json();
+          if (res.ok && data.status === "ok") {
+            status.innerHTML = `<span class="pill good">Healthy</span> store=${data.store_exists ? "present" : "missing"} path=${data.store_path}`;
+          } else {
+            status.innerHTML = `<span class="pill bad">Degraded</span> ${data.error || "Unknown issue"}`;
+          }
+        } catch (err) {
+          status.innerHTML = `<span class="pill bad">Error</span> ${err.message}`;
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      async function runForecast() {
+        const hex = document.getElementById("hexInput").value.trim();
+        const serviceType = document.getElementById("serviceInput").value.trim();
+        const horizonsRaw = document
+          .getElementById("horizonInput")
+          .value.split(",")
+          .map((h) => h.trim())
+          .filter(Boolean);
+        const status = document.getElementById("forecastStatus");
+        const btn = document.getElementById("forecastBtn");
+        if (!hex || !serviceType || horizonsRaw.length === 0) {
+          status.innerHTML = '<span class="pill bad">Fill all fields first</span>';
+          return;
+        }
+        btn.disabled = true;
+        status.textContent = "Calling /forecast...";
+        try {
+          const query = new URLSearchParams({
+            hexagon: hex,
+            service_type: serviceType,
+          });
+          horizonsRaw.forEach((h) => query.append("horizons", h));
+          const res = await fetch(`/forecast?${query.toString()}`);
+          if (!res.ok) throw new Error("Forecast call failed");
+          const data = await res.json();
+          if (!Array.isArray(data) || data.length === 0) {
+            status.innerHTML = '<span class="pill bad">No forecast returned</span>';
+            return;
+          }
+          const best = data[0];
+          status.innerHTML = `<span class="pill good">OK</span> ${data.length} horizons. First: ${best.horizon_min} min, demand=${best.demand}, surge=${best.surge_delta_percent}%`;
+        } catch (err) {
+          status.innerHTML = `<span class="pill bad">Error</span> ${err.message}`;
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      loadMeta();
+    </script>
+  </body>
+</html>
