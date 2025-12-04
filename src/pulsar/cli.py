@@ -70,7 +70,7 @@ def build_parser() -> argparse.ArgumentParser:
     train_parser.add_argument("--cnn-batch-size", type=int, default=128)
     train_parser.add_argument(
         "--prometheus-pushgateway-url",
-        default="0.0.0.0",
+        default="",
         dest="prometheus_pushgateway_url",
         help="Optional Prometheus Pushgateway URL to push training metrics",
     )
@@ -203,7 +203,8 @@ def main(argv: Iterable[str] | None = None) -> None:
         )
 
         # Optionally push metrics to Prometheus Pushgateway for historical tracking
-        if getattr(args, "prometheus_pushgateway_url", None):
+        prom_arg = getattr(args, "prometheus_pushgateway_url", None)
+        if prom_arg and prom_arg != "":
             try:
                 from prometheus_client import (
                     CollectorRegistry,
