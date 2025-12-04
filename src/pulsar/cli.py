@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
         "train", help="Train ML model and log to MLflow"
     )
     train_parser.add_argument(
-        "--service-types", type=int, nargs="*", default=[], help="Filter service types"
+        "--service-types", type=int, nargs="*", default=[1], help="Filter service types"
     )
     train_parser.add_argument("--alpha", type=float, default=0.3)
     train_parser.add_argument("--l1-ratio", type=float, default=0.1)
@@ -69,9 +69,12 @@ def build_parser() -> argparse.ArgumentParser:
     train_parser.add_argument("--cnn-batch-size", type=int, default=128)
     train_parser.add_argument(
         "--prometheus-pushgateway-url",
+        default="0.0.0.0",
         dest="prometheus_pushgateway_url",
         help="Optional Prometheus Pushgateway URL to push training metrics",
     )
+    train_parser.add_argument("--host", default="0.0.0.0")
+    train_parser.add_argument("--port", type=int, default=8088)
 
     ch_parser = subparsers.add_parser(
         "clickhouse-export",
