@@ -3,21 +3,19 @@
 FROM ghcr.io/astral-sh/uv:python3.14-bookworm AS build
 WORKDIR /app
 
-# Copy only dependency manifests first for optimal layer caching
-# This allows Docker to cache the dependency installation layer
-COPY pyproject.toml uv.lock README.md ./
+# Copy project metadata and source code needed for installation
+COPY pyproject.toml uv.lock README.md ./ 
+COPY src ./src
 
 # Increase timeout for large package downloads (torch, CUDA packages)
 # Set longer timeout and enable concurrent downloads for better performance
 ENV UV_HTTP_TIMEOUT=600 \
   UV_CONCURRENT_DOWNLOADS=10
 
-# Install dependencies first (this layer will be cached if dependencies don't change)
+# Install dependencies and the project itself into the virtual environment
 RUN uv sync --frozen --no-dev
 
-# Copy application code after dependencies are installed
-# This ensures code changes don't invalidate the dependency cache
-COPY src ./src
+# Copy the rest of the application data (doesn't affect installed deps)
 COPY scripts ./scripts
 COPY datasets ./datasets
 COPY config.example.yaml sample_tasks.json ./
@@ -51,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Set entrypoint and default command
 ENTRYPOINT ["pulsar"]
-CMD ["--help"]
+CMD ["train"]
