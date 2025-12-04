@@ -15,7 +15,12 @@ from uuid import UUID
 from clickhouse_driver import Client as ClickHouseClient
 from dateutil import parser as date_parser
 import nats
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
 
 from pulsar_core.config import PulsarConfig
 
@@ -152,7 +157,10 @@ class ClickHouseConnectionManager:
             )
             logger.debug(
                 "Created ClickHouse client",
-                extra={"host": self._cfg.clickhouse.host, "database": self._cfg.clickhouse.database}
+                extra={
+                    "host": self._cfg.clickhouse.host,
+                    "database": self._cfg.clickhouse.database,
+                },
             )
         return self._client
 
@@ -184,7 +192,10 @@ def _execute_query_with_retry(
     settings: dict[str, Any] | None = None,
 ):
     """Execute a ClickHouse query with retry logic for transient failures."""
-    logger.debug("Executing query", extra={"query": query[:100], "has_params": params is not None})
+    logger.debug(
+        "Executing query",
+        extra={"query": query[:100], "has_params": params is not None},
+    )
     return client.execute(query, params, settings=settings)
 
 
@@ -257,7 +268,8 @@ def _iter_clickhouse_batches(
         column_names = list(columns)
     elif described_table:
         column_names = [
-            row[0] for row in _execute_query_with_retry(
+            row[0]
+            for row in _execute_query_with_retry(
                 client, f"DESCRIBE TABLE {described_table}"
             )
         ]
@@ -279,19 +291,24 @@ def _iter_clickhouse_batches(
             "batch_size": batch_size,
             "limit": limit,
             "has_params": params is not None,
-        }
+        },
     )
 
     def iterator() -> Iterator[list[dict]]:
         try:
             batch: list[dict] = []
             emitted = 0
-            for row in _execute_iter_with_retry(client, query_text, params, settings=base_settings):
+            for row in _execute_iter_with_retry(
+                client, query_text, params, settings=base_settings
+            ):
                 batch.append(_row_dict(column_names, row))
                 emitted += 1
                 if len(batch) >= batch_size:
                     yield batch
-                    logger.debug("Yielded batch", extra={"rows": len(batch), "total_emitted": emitted})
+                    logger.debug(
+                        "Yielded batch",
+                        extra={"rows": len(batch), "total_emitted": emitted},
+                    )
                     batch = []
                 if limit and emitted >= limit:
                     break
@@ -300,7 +317,10 @@ def _iter_clickhouse_batches(
                     progress_callback(emitted)
             if batch:
                 yield batch
-                logger.debug("Yielded final batch", extra={"rows": len(batch), "total_emitted": emitted})
+                logger.debug(
+                    "Yielded final batch",
+                    extra={"rows": len(batch), "total_emitted": emitted},
+                )
 
             logger.info("Completed batch iteration", extra={"total_rows": emitted})
         finally:
@@ -338,8 +358,7 @@ async def _publish_batches(
             batches_sent += 1
             rows_sent += len(batch)
             logger.info(
-                "Dry-run batch",
-                extra={"batch": batches_sent, "rows": len(batch)}
+                "Dry-run batch", extra={"batch": batches_sent, "rows": len(batch)}
             )
         return PublishSummary(
             table=table, subject=subject, batches=batches_sent, rows=rows_sent
@@ -363,12 +382,12 @@ async def _publish_batches(
             await nc.publish(subject, json.dumps(envelope).encode("utf-8"))
             logger.debug(
                 "Published batch",
-                extra={"batch": batches_sent, "rows": len(batch), "subject": subject}
+                extra={"batch": batches_sent, "rows": len(batch), "subject": subject},
             )
         await nc.flush()
         logger.info(
             "Finished publishing batches",
-            extra={"total_batches": batches_sent, "total_rows": rows_sent}
+            extra={"total_batches": batches_sent, "total_rows": rows_sent},
         )
     finally:
         if own_connection:
@@ -416,7 +435,12 @@ def export_clickhouse_table(
     subject = subject_override or cfg.nats.subject
     logger.info(
         "Starting export",
-        extra={"table": table, "subject": subject, "batch_size": batch_size, "limit": limit}
+        extra={
+            "table": table,
+            "subject": subject,
+            "batch_size": batch_size,
+            "limit": limit,
+        },
     )
 
     batches = _iter_clickhouse_batches(
@@ -478,7 +502,7 @@ async def stream_clickhouse_table_async(
             "table": table,
             "subject": subject,
             "poll_interval": poll_interval,
-        }
+        },
     )
 
     # Reuse connections across iterations
@@ -544,7 +568,7 @@ def stream_clickhouse_table(
 
     logger.info(
         "Starting streaming export",
-        extra={"table": table, "poll_interval": poll_interval}
+        extra={"table": table, "poll_interval": poll_interval},
     )
 
     # Use connection manager for ClickHouse connection reuse
