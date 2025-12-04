@@ -24,6 +24,18 @@ COPY config.example.yaml sample_tasks.json ./
 
 FROM python:3.14-slim-bookworm AS runtime
 
+# Create venv
+RUN python -m venv .venv
+
+# Ensure pip is up to date inside venv
+RUN . .venv/bin/activate && pip install --upgrade pip
+
+# Install deps into venv
+COPY requirements.txt .
+RUN . .venv/bin/activate && pip install -r requirements.txt
+
+COPY . .
+
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
   VIRTUAL_ENV=/app/.venv \
