@@ -302,8 +302,9 @@
           <article class="card">
             <h3>Forecasting</h3>
             <p>
-              Hybrid Prophet + LSTM/Temporal Fusion per (city, service type, H3) with sliding-window retraining and operator
-              overrides. ElasticNet keeps predictions interpretable for ops.
+              ElasticNet + Temporal CNN per (city, service type, hexagon) on top of parquet histories. A simple trend
+              forecaster keeps a lightweight baseline; ElasticNet keeps predictions interpretable for ops, and deeper
+              sequence models sit on the roadmap.
             </p>
           </article>
           <article class="card">
@@ -320,10 +321,10 @@
         <h2>02 · Time-Series Algorithms</h2>
         <div class="grid">
           <article class="card">
-            <h3>Prophet Baseline</h3>
+            <h3>Trend Baseline</h3>
             <ul>
-              <li>Captures daily/weekly seasonality per service/city.</li>
-              <li>Low-latency fallback for new hexagons with sparse history.</li>
+              <li>SimpleForecaster-style linear/seasonal trends per service/city as a cheap fallback.</li>
+              <li>Low-latency option for new hexagons with sparse history.</li>
             </ul>
           </article>
 
@@ -331,8 +332,8 @@
             <h3>Sequence Models</h3>
             <ul>
               <li>
-                LSTM / Temporal-Fusion networks leverage krings (adjacent hex influence) and capture surge ripple
-                effects.
+                Temporal CNN over fixed windows captures short-term wave patterns before a surge; LSTM/TFN variants sit
+                in the roadmap for longer horizons.
               </li>
               <li>Lagged features (acceptance, supply, price-conversion) created per parquet history.</li>
             </ul>
@@ -375,7 +376,7 @@
           <article class="card">
             <h3>Predict the Spike</h3>
             <p>
-              Temporal-Fusion + Prophet track krings and rider demand to raise a “surge window” flag up to 30 minutes before
+              Temporal CNN + trend baselines track rider demand to raise a “surge window” flag up to 30 minutes before
               pricing reacts. Ops sees the spike before it punches them in the face.
             </p>
           </article>
@@ -480,7 +481,7 @@
           </article>
           <article class="card">
             <h3>2 · Intelligence</h3>
-            <p>ElasticNet, Prophet, and Temporal-Fusion models roll over parquet histories; MLflow tracks every run.</p>
+            <p>ElasticNet, Temporal CNN, and a simple trend baseline roll over parquet histories; MLflow tracks every run.</p>
           </article>
           <article class="card">
             <h3>3 · Decisions Out</h3>
