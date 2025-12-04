@@ -19,6 +19,7 @@ from pulsar_core.config import PulsarConfig, load_config
 from pulsar_core.features import SnapshotBuilder
 from pulsar_core.models import SimpleForecaster
 from pulsar_core.models.cnn_trainer import CNNTrainer, CNNTrainerConfig
+from pulsar_core.models.nats_trainer import NatsMLTrainer
 from pulsar_core.models.trainer import MLTrainer
 from pulsar_core.service import create_app
 from pulsar_core.signals import ImportTask, RedisSignalLoader, run_consumer
@@ -62,6 +63,30 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["elasticnet", "cnn"],
         default="cnn",
         help="Select training backend",
+    )
+    train_parser.add_argument(
+        "--data-source",
+        choices=["file", "nats"],
+        default="file",
+        help="Data source for training: 'file' reads from parquet cache, 'nats' subscribes to NATS events",
+    )
+    train_parser.add_argument(
+        "--nats-timeout",
+        type=float,
+        default=60.0,
+        help="Timeout in seconds for collecting data from NATS (only used with --data-source nats)",
+    )
+    train_parser.add_argument(
+        "--nats-max-messages",
+        type=int,
+        default=None,
+        help="Maximum number of NATS messages to collect (None = unlimited until timeout)",
+    )
+    train_parser.add_argument(
+        "--nats-subject",
+        type=str,
+        default=None,
+        help="Override NATS subject from config (only used with --data-source nats)",
     )
     train_parser.add_argument(
         "--cnn-window", type=int, default=12, help="Sequence window size for CNN model"
@@ -176,10 +201,13 @@ def main(argv: Iterable[str] | None = None) -> None:
 
     if args.command == "train":
         print("Training model")
-        # app = create_app(cfg)
-        # uvicorn.run(app, host=args.host, port=args.port)
+        data_source = getattr(args, "data_source", "file")
+        
         if args.model_type == "cnn":
             print("Training CNN model")
+            # CNN trainer currently only supports file-based data
+            if data_source == "nats":
+                raise ValueError("CNN trainer does not support NATS data source yet. Use --data-source file")
             tcfg = CNNTrainerConfig(
                 window_size=args.cnn_window,
                 epochs=args.cnn_epochs,
@@ -188,13 +216,25 @@ def main(argv: Iterable[str] | None = None) -> None:
             trainer = CNNTrainer(cfg, tcfg)
             result = trainer.train(service_types=args.service_types)
         else:
-            print("Training ElasticNet model")
-            trainer = MLTrainer(cfg)
-            result = trainer.train(
-                service_types=args.service_types,
-                alpha=args.alpha,
-                l1_ratio=args.l1_ratio,
-            )
+            if data_source == "nats":
+                print("Training ElasticNet model from NATS events")
+                trainer = NatsMLTrainer(cfg)
+                result = trainer.train(
+                    service_types=args.service_types,
+                    alpha=args.alpha,
+                    l1_ratio=args.l1_ratio,
+                    timeout_seconds=getattr(args, "nats_timeout", 60.0),
+                    max_messages=getattr(args, "nats_max_messages", None),
+                    subject_override=getattr(args, "nats_subject", None),
+                )
+            else:
+                print("Training ElasticNet model from file cache")
+                trainer = MLTrainer(cfg)
+                result = trainer.train(
+                    service_types=args.service_types,
+                    alpha=args.alpha,
+                    l1_ratio=args.l1_ratio,
+                )
 
         duration = time.time() - start_time
         print(
