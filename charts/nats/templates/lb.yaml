@@ -1,0 +1,46 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: nats
+    app.kubernetes.io/instance: nats-teh1-{{ .Release.Namespace }}
+    app.kubernetes.io/name: nats
+  name: nats-lb
+spec:
+  ports:
+    - name: nats
+      port: 4222
+      protocol: TCP
+      targetPort: 4222
+    - name: gateway
+      port: 7522
+      protocol: TCP
+      targetPort: 7522
+  selector:
+    app.kubernetes.io/instance: nats-teh1-{{ .Release.Namespace }}
+    app.kubernetes.io/name: nats
+  type: LoadBalancer
+  loadBalancerIP: {{ .Values.service.loadBalancerIP }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    metallb.universe.tf/address-pool: vpn-access
+  labels:
+    app: nats
+    app.kubernetes.io/instance: nats-teh1-{{ .Release.Namespace }}
+    app.kubernetes.io/name: nats
+  name: nats-mgmt-lb
+spec:
+  ports:
+    - name: nats
+      port: 4222
+      protocol: TCP
+      targetPort: 4222
+  selector:
+    app.kubernetes.io/instance: nats-teh1-{{ .Release.Namespace }}
+    app.kubernetes.io/name: nats
+  type: LoadBalancer
+  loadBalancerIP: {{ .Values.management.loadBalancerIP }}

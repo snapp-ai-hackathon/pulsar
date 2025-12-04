@@ -1,31 +1,48 @@
+---
+service:
+  loadBalancerIP: ""
+management:
+  loadBalancerIP: ""
+
 nats:
-  image: "nats:2.10"
-  cluster:
-    enabled: false
-  jetstream:
-    enabled: false
-  auth:
+  podTemplate:
+    patch:
+      - op: add
+        path: /spec/securityContext
+        value:
+          sysctls:
+            - name: net.core.somaxconn
+              value: "16384"
+
+  natsBox:
     enabled: false
 
-  podSecurityContext:
+  reloader:
+    enabled: false
+
+  config:
+    cluster:
+      noAdvertise: true
+      enabled: true
+      replicas: 1
+    jetstream:
+      enabled: false
+
+  container:
+    merge:
+      resources:
+        requests:
+          cpu: 2
+          memory: 1Gi
+          ephemeral-storage: 500Mi
+        limits:
+          cpu: 4
+          memory: 1Gi
+          ephemeral-storage: 500Mi
+
+  promExporter:
     enabled: true
-    runAsNonRoot: true
-    runAsUser: null
-
-  securityContext:
-    enabled: true
-    runAsNonRoot: true
-    runAsUser: null
-    allowPrivilegeEscalation: false
-
-# turn off the helper toolbox pod
-natsBox:
-  enabled: false
-
-# (for older chart versions the key is lowercase)
-natsbox:
-  enabled: false
-
-# also make sure Helm tests aren't rendered if you're using `helm template`
-tests:
-  enabled: false
+    env:
+      GODEBUG: multipathtcp=0
+    podMonitor:
+      enabled: true
