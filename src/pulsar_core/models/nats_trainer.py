@@ -90,7 +90,7 @@ class NatsMLTrainer:
                 period_end_str = row.get("to")
                 if not period_start_str or not period_end_str:
                     continue
-                
+
                 try:
                     period_start = pd.to_datetime(period_start_str)
                     period_end = pd.to_datetime(period_end_str)
@@ -123,19 +123,25 @@ class NatsMLTrainer:
                 )
                 supply_signal = max(acceptance_rate * 100, 1.0)
 
-                frames.append(pd.DataFrame([{
-                    "hexagon": hexagon,
-                    "service_type": service_type,
-                    "city_id": city_id,
-                    "period_start": period_start,
-                    "period_end": period_end,
-                    "acceptance_rate": acceptance_rate,
-                    "price_conversion": price_conversion,
-                    "demand_signal": demand_signal,
-                    "supply_signal": supply_signal,
-                    "surge_percent": surge_percent,
-                    "surge_absolute": surge_absolute,
-                }]))
+                frames.append(
+                    pd.DataFrame(
+                        [
+                            {
+                                "hexagon": hexagon,
+                                "service_type": service_type,
+                                "city_id": city_id,
+                                "period_start": period_start,
+                                "period_end": period_end,
+                                "acceptance_rate": acceptance_rate,
+                                "price_conversion": price_conversion,
+                                "demand_signal": demand_signal,
+                                "supply_signal": supply_signal,
+                                "surge_percent": surge_percent,
+                                "surge_absolute": surge_absolute,
+                            }
+                        ]
+                    )
+                )
             except (ValueError, KeyError, TypeError) as exc:
                 logger.debug(f"Skipping invalid row: {exc}")
                 continue
@@ -157,7 +163,7 @@ class NatsMLTrainer:
         frame["lag_acceptance"] = frame.groupby(["hexagon", "service_type"])[
             "acceptance_rate"
         ].shift(1)
-        
+
         frame.dropna(
             subset=[
                 "lag_demand",
