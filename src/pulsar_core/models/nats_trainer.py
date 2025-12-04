@@ -33,7 +33,7 @@ class TrainingResult:
 class NatsMLTrainer:
     """
     Train a regression model on data consumed from NATS events.
-    
+
     This trainer subscribes to NATS, collects data from events, and trains
     a model similar to MLTrainer but using streaming data instead of parquet files.
     """
@@ -46,7 +46,7 @@ class NatsMLTrainer:
     def _parse_nats_message(self, msg_data: bytes) -> List[dict]:
         """
         Parse a NATS message envelope and extract rows.
-        
+
         Expected format:
         {
             "table": "...",
@@ -67,7 +67,7 @@ class NatsMLTrainer:
     def _transform_to_training_format(self, rows: List[dict]) -> pd.DataFrame:
         """
         Transform NATS rows (from ClickHouse parameter table) into training format.
-        
+
         Maps ClickHouse columns to training features:
         - hex_id -> hexagon
         - accept_rate -> acceptance_rate
@@ -84,7 +84,7 @@ class NatsMLTrainer:
                 hexagon = int(row.get("hex_id", 0))
                 service_type = int(row.get("service_type", 0))
                 city_id = int(row.get("city_id", 0))
-                
+
                 # Parse timestamps
                 period_start_str = row.get("from")
                 period_end_str = row.get("to")
@@ -100,15 +100,27 @@ class NatsMLTrainer:
                 # Extract metrics
                 acceptance_rate = float(row.get("accept_rate", 0.0))
                 price_conversion = float(row.get("price_cnvr", 0.0))
-                
+
                 # Calculate demand/supply signals (similar to SnapshotBuilder logic)
                 # For demand: use surge metrics or fallback to acceptance-based estimate
-                surge_percent = float(row.get("surge_percent", 0.0)) if row.get("surge_percent") is not None else 0.0
-                surge_absolute = float(row.get("surge_absolute", 0.0)) if row.get("surge_absolute") is not None else 0.0
-                
+                surge_percent = (
+                    float(row.get("surge_percent", 0.0))
+                    if row.get("surge_percent") is not None
+                    else 0.0
+                )
+                surge_absolute = (
+                    float(row.get("surge_absolute", 0.0))
+                    if row.get("surge_absolute") is not None
+                    else 0.0
+                )
+
                 # Estimate demand signal from surge or acceptance metrics
                 # This is a simplified calculation - adjust based on your actual data model
-                demand_signal = max(acceptance_rate * 100, surge_absolute) if surge_absolute > 0 else acceptance_rate * 100
+                demand_signal = (
+                    max(acceptance_rate * 100, surge_absolute)
+                    if surge_absolute > 0
+                    else acceptance_rate * 100
+                )
                 supply_signal = max(acceptance_rate * 100, 1.0)
 
                 frames.append(pd.DataFrame([{
@@ -134,7 +146,7 @@ class NatsMLTrainer:
         frame = pd.concat(frames, ignore_index=True)
         frame["period_start"] = pd.to_datetime(frame["period_start"], errors="coerce")
         frame.sort_values(["hexagon", "service_type", "period_start"], inplace=True)
-        
+
         # Create lag features (same as MLTrainer)
         frame["lag_demand"] = frame.groupby(["hexagon", "service_type"])[
             "demand_signal"
@@ -156,7 +168,7 @@ class NatsMLTrainer:
             ],
             inplace=True,
         )
-        
+
         return frame
 
     async def _collect_from_nats(
@@ -168,13 +180,13 @@ class NatsMLTrainer:
     ) -> List[dict]:
         """
         Subscribe to NATS and collect data until timeout or max_messages reached.
-        
+
         Args:
             subject: NATS subject to subscribe to
             address: NATS server address
             max_messages: Maximum number of messages to collect (None = unlimited)
             timeout_seconds: Stop collecting after this many seconds (None = no timeout)
-        
+
         Returns:
             List of collected row dictionaries
         """
@@ -222,33 +234,38 @@ class NatsMLTrainer:
         finally:
             await sub.unsubscribe()
             await nc.drain()
-            logger.info(f"Disconnected from NATS. Total collected: {len(collected_rows)} rows")
+            logger.info(
+                f"Disconnected from NATS. Total collected: {len(collected_rows)} rows"
+            )
 
         return collected_rows
 
-    def _load_dataset(self, service_types: List[int], collected_rows: List[dict]) -> pd.DataFrame:
+    def _load_dataset(
+        self, service_types: List[int], collected_rows: List[dict]
+    ) -> pd.DataFrame:
         """
         Transform collected NATS rows into training dataset.
-        
+
         Args:
             service_types: Filter by service types (empty list = all)
             collected_rows: Raw rows collected from NATS
-        
+
         Returns:
             DataFrame ready for training
         """
         if not collected_rows:
-            raise ValueError("no data collected from NATS; ensure NATS is publishing events")
+            raise ValueError(
+                "no data collected from NATS; ensure NATS is publishing events"
+            )
 
         # Filter by service_types if specified
         if service_types:
             collected_rows = [
-                row for row in collected_rows
-                if row.get("service_type") in service_types
+                row for row in collected_rows if row.get("service_type") in service_types
             ]
 
         frame = self._transform_to_training_format(collected_rows)
-        
+
         if frame.empty:
             raise ValueError("no valid training data after transformation")
 
@@ -267,7 +284,7 @@ class NatsMLTrainer:
     ) -> TrainingResult:
         """
         Train model on data collected from NATS events.
-        
+
         Args:
             service_types: List of service types to train on
             alpha: ElasticNet alpha parameter
@@ -277,7 +294,7 @@ class NatsMLTrainer:
             max_messages: Maximum NATS messages to collect (None = unlimited until timeout)
             timeout_seconds: Stop collecting after this many seconds
             subject_override: Override NATS subject from config
-        
+
         Returns:
             TrainingResult with metrics and model URI
         """
@@ -296,7 +313,7 @@ class NatsMLTrainer:
             f"Collecting training data from NATS subject '{subject}' "
             f"(timeout={timeout_seconds}s, max_messages={max_messages})"
         )
-        
+
         collected_rows = await self._collect_from_nats(
             subject=subject,
             address=self.cfg.nats.address,
@@ -373,7 +390,7 @@ class NatsMLTrainer:
     ) -> TrainingResult:
         """
         Synchronous wrapper for train_async.
-        
+
         See train_async for parameter documentation.
         """
         return asyncio.run(

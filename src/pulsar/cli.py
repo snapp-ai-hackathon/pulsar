@@ -68,7 +68,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--data-source",
         choices=["file", "nats"],
         default="file",
-        help="Data source for training: 'file' reads from parquet cache, 'nats' subscribes to NATS events",
+        help=(
+            "Data source for training: 'file' reads from parquet cache, "
+            "'nats' subscribes to NATS events"
+        ),
     )
     train_parser.add_argument(
         "--nats-timeout",
@@ -202,12 +205,14 @@ def main(argv: Iterable[str] | None = None) -> None:
     if args.command == "train":
         print("Training model")
         data_source = getattr(args, "data_source", "file")
-        
+
         if args.model_type == "cnn":
             print("Training CNN model")
             # CNN trainer currently only supports file-based data
             if data_source == "nats":
-                raise ValueError("CNN trainer does not support NATS data source yet. Use --data-source file")
+                raise ValueError(
+                    "CNN trainer does not support NATS data source yet. Use --data-source file"
+                )
             tcfg = CNNTrainerConfig(
                 window_size=args.cnn_window,
                 epochs=args.cnn_epochs,
