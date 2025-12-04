@@ -2,18 +2,18 @@
 
 ## Service Types
 
-| Code | Name |
-| --- | --- |
-| 1 | Eco |
-| 2 | Plus |
-| 3 | Rose |
-| 4 | Yellow |
-| 5 | Delivery |
-| 6 | Eat |
-| 7 | Bike |
-| 8 | Cab Delivery |
-| 24 | Carpooling |
-| 31 | Intercity |
+| Code | Name         |
+| ---- | ------------ |
+| 1    | Eco          |
+| 2    | Plus         |
+| 3    | Rose         |
+| 4    | Yellow       |
+| 5    | Delivery     |
+| 6    | Eat          |
+| 7    | Bike         |
+| 8    | Cab Delivery |
+| 24   | Carpooling   |
+| 31   | Intercity    |
 
 ## Cities
 
@@ -46,12 +46,12 @@ ID to name mapping used by the scheduler:
 25. Semnan
 26. Zanjan
 27. Lorestan
-29. Shahrekord
-30. Yasouj
-31. Khorasan Razavi
-32. Khorasan Jonoobi
-33. Ilam
-34. Sistan
-35. Qeshm
-36. Kish
-37. Chabahar
+28. Shahrekord
+29. Yasouj
+30. Khorasan Razavi
+31. Khorasan Jonoobi
+32. Ilam
+33. Sistan
+34. Qeshm
+35. Kish
+36. Chabahar
