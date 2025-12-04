@@ -136,7 +136,8 @@ class NatsMLTrainer:
                     "surge_percent": surge_percent,
                     "surge_absolute": surge_absolute,
                 }
-                frames.append(pd.DataFrame([row_dict]))
+                df = pd.DataFrame([row_dict])
+                frames.append(df)
             except (ValueError, KeyError, TypeError) as exc:
                 logger.debug(f"Skipping invalid row: {exc}")
                 continue
