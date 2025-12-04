@@ -123,25 +123,20 @@ class NatsMLTrainer:
                 )
                 supply_signal = max(acceptance_rate * 100, 1.0)
 
-                frames.append(
-                    pd.DataFrame(
-                        [
-                            {
-                                "hexagon": hexagon,
-                                "service_type": service_type,
-                                "city_id": city_id,
-                                "period_start": period_start,
-                                "period_end": period_end,
-                                "acceptance_rate": acceptance_rate,
-                                "price_conversion": price_conversion,
-                                "demand_signal": demand_signal,
-                                "supply_signal": supply_signal,
-                                "surge_percent": surge_percent,
-                                "surge_absolute": surge_absolute,
-                            },
-                        ],
-                    ),
-                )
+                row_dict = {
+                    "hexagon": hexagon,
+                    "service_type": service_type,
+                    "city_id": city_id,
+                    "period_start": period_start,
+                    "period_end": period_end,
+                    "acceptance_rate": acceptance_rate,
+                    "price_conversion": price_conversion,
+                    "demand_signal": demand_signal,
+                    "supply_signal": supply_signal,
+                    "surge_percent": surge_percent,
+                    "surge_absolute": surge_absolute,
+                }
+                frames.append(pd.DataFrame([row_dict]))
             except (ValueError, KeyError, TypeError) as exc:
                 logger.debug(f"Skipping invalid row: {exc}")
                 continue
@@ -207,11 +202,13 @@ class NatsMLTrainer:
             message_count += 1
             logger.debug(
                 f"Collected {len(rows)} rows from message {message_count} "
-                f"(total rows: {len(collected_rows)})"
+                f"(total rows: {len(collected_rows)})",
             )
 
         nc = await nats.connect(address)
-        logger.info(f"Connected to NATS at {address}, subscribing to {subject}")
+        logger.info(
+            f"Connected to NATS at {address}, subscribing to {subject}"
+        )
 
         try:
             sub = await nc.subscribe(subject, cb=message_handler)
@@ -224,7 +221,8 @@ class NatsMLTrainer:
                     if elapsed >= timeout_seconds:
                         logger.info(
                             f"Timeout reached ({timeout_seconds}s), stopping collection. "
-                            f"Collected {message_count} messages, {len(collected_rows)} rows"
+                            f"Collected {message_count} messages, "
+                            f"{len(collected_rows)} rows"
                         )
                         break
 
@@ -241,7 +239,7 @@ class NatsMLTrainer:
             await sub.unsubscribe()
             await nc.drain()
             logger.info(
-                f"Disconnected from NATS. Total collected: {len(collected_rows)} rows"
+                f"Disconnected from NATS. Total collected: {len(collected_rows)} rows",
             )
 
         return collected_rows
@@ -317,7 +315,7 @@ class NatsMLTrainer:
         subject = subject_override or self.cfg.nats.subject
         logger.info(
             f"Collecting training data from NATS subject '{subject}' "
-            f"(timeout={timeout_seconds}s, max_messages={max_messages})"
+            f"(timeout={timeout_seconds}s, max_messages={max_messages})",
         )
 
         collected_rows = await self._collect_from_nats(
@@ -411,4 +409,3 @@ class NatsMLTrainer:
                 subject_override=subject_override,
             )
         )
-
