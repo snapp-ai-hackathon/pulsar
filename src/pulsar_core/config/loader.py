@@ -135,13 +135,8 @@ def resolve_config_path(explicit_path: Path | str | None = None) -> Path:
 
 
 def load_config(path: Path | str | None = None) -> PulsarConfig:
-    print("path: {}", path)
     config_path = resolve_config_path(path)
-    print("config path: {}", config_path)
-    read_text = config_path.read_text()
-    print("read_text: {}", read_text)
-    data = yaml.safe_load(read_text)
-    print("data: {}", data)
+    data = yaml.safe_load(config_path.read_text())
     pulsar_conf = PulsarConfig.parse_obj(data)
-    print("pulsar_conf: {}", pulsar_conf)
+    print("Config Loaded:\n{}\n".format(pulsar_conf))
     return pulsar_conf
