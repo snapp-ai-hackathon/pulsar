@@ -10,6 +10,10 @@ COPY scripts ./scripts
 COPY datasets ./datasets
 COPY config.example.yaml sample_tasks.json ./
 
+# Increase timeout for large package downloads (torch, CUDA packages)
+# Set longer timeout and enable concurrent downloads for better performance
+ENV UV_HTTP_TIMEOUT=600 \
+    UV_CONCURRENT_DOWNLOADS=10
 RUN uv sync --frozen --no-dev
 
 FROM python:3.11-slim-bookworm AS runtime
