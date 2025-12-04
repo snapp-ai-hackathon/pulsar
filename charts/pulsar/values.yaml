@@ -72,15 +72,15 @@ livenessProbe:
   httpGet:
     path: /healthz
     port: http
-  initialDelaySeconds: 30
-  periodSeconds: 30
+  initialDelaySeconds: 120
+  periodSeconds: 150
 
 readinessProbe:
   httpGet:
     path: /healthz
     port: http
-  initialDelaySeconds: 10
-  periodSeconds: 15
+  initialDelaySeconds: 60
+  periodSeconds: 90
 
 volumeMounts: []
 volumes: []
