@@ -30,6 +30,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--config",
         type=Path,
+        default="/app/config.yaml",
         help="Path to config file (defaults to $PULSAR_CONFIG or ./config.yaml)",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
