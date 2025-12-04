@@ -46,31 +46,6 @@ class RabbitConfig(BaseModel):
     vhost: str = "/"
     queues: RabbitQueueNames = Field(default_factory=RabbitQueueNames)
 
-    def pika_credentials(self):
-        import pika
-
-        return pika.PlainCredentials(self.user, self.password)
-
-
-class NATSConfig(BaseModel):
-    """NATS configuration for consuming kandoo.parameter messages."""
-    servers: List[str] = Field(default_factory=lambda: ["nats://127.0.0.1:4222"])
-    subject: str = "kandoo.parameter"
-    queue: Optional[str] = None  # Optional queue group for load balancing
-    max_reconnects: int = 10
-    reconnect_time_wait: int = 2
-
-
-class ClickHouseConfig(BaseModel):
-    """ClickHouse configuration for reading kandoo_parameter_nats table."""
-    host: str = "127.0.0.1"
-    port: int = 8123
-    database: str = "snapp_raw_log"
-    table: str = "kandoo_parameter_nats"
-    user: Optional[str] = None
-    password: Optional[str] = None
-    secure: bool = False
-
 
 class ForecastConfig(BaseModel):
     horizons: List[int] = Field(default_factory=lambda: [30, 60, 90])
@@ -102,6 +77,8 @@ class NatsConfig(BaseModel):
 
 
 class PulsarConfig(BaseModel):
+    redis: RedisConfig
+    rabbitmq: RabbitConfig
     clickhouse: ClickHouseConfig = Field(default_factory=ClickHouseConfig)
     nats: NatsConfig = Field(default_factory=NatsConfig)
     forecast: ForecastConfig = Field(default_factory=ForecastConfig)
@@ -110,8 +87,6 @@ class PulsarConfig(BaseModel):
     collect_duration_minutes: float = 5.5
     mlflow_tracking_uri: Optional[str] = None
     mlflow_experiment: str = "pulsar-forecast"
-    # Mode: "redis_rabbitmq" (legacy), "nats_clickhouse" (new), or "clickhouse_only" (read-only)
-    mode: str = "redis_rabbitmq"
 
     def ensure_cache_dir(self) -> Path:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
