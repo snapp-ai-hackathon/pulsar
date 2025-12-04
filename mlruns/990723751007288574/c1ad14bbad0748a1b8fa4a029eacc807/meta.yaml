@@ -1,0 +1,14 @@
+artifact_uri: file:///Users/ali/Downloads/Pulsar/mlruns/990723751007288574/c1ad14bbad0748a1b8fa4a029eacc807/artifacts
+end_time: 1764834547923
+entry_point_name: ''
+experiment_id: '990723751007288574'
+lifecycle_stage: active
+run_id: c1ad14bbad0748a1b8fa4a029eacc807
+run_name: elasticnet-demand-2025-12-04
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1764834545516
+status: 3
+tags: []
+user_id: ali

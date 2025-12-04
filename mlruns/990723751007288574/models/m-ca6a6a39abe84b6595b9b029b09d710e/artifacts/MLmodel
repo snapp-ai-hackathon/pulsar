@@ -1,0 +1,22 @@
+artifact_path: file:///Users/ali/Downloads/Pulsar/mlruns/990723751007288574/models/m-ca6a6a39abe84b6595b9b029b09d710e/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.pkl
+    predict_fn: predict
+    python_version: 3.13.4
+  sklearn:
+    code: null
+    pickled_model: model.pkl
+    serialization_format: cloudpickle
+    sklearn_version: 1.7.2
+mlflow_version: 3.6.0
+model_id: m-ca6a6a39abe84b6595b9b029b09d710e
+model_size_bytes: 707
+model_uuid: m-ca6a6a39abe84b6595b9b029b09d710e
+prompts: null
+run_id: 16dce48f80164f618d63a7efbac61d31
+utc_time_created: '2025-12-04 08:16:28.710538'

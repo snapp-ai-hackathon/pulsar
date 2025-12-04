@@ -1,0 +1,10 @@
+artifact_location: file:///Users/ali/Downloads/Pulsar/mlruns/990723751007288574/models/m-7c92879790014d80910153dc0acc4209/artifacts
+creation_timestamp: 1764834545534
+experiment_id: '990723751007288574'
+last_updated_timestamp: 1764834547921
+model_id: m-7c92879790014d80910153dc0acc4209
+model_type: null
+name: model
+source_run_id: c1ad14bbad0748a1b8fa4a029eacc807
+status: 2
+status_message: null
