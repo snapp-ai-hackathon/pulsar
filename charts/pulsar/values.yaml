@@ -51,7 +51,7 @@ nodeSelector: {}
 tolerations: []
 
 config:
-  path: /app/config.yaml
+  path: config.yaml
   contents: |
     clickhouse:
       host: 127.0.0.1
@@ -82,7 +82,7 @@ command:
   - pulsar
 args:
   - --config
-  - /app/config.yaml
+  - config.yaml
   - api
   - --host
   - 0.0.0.0
