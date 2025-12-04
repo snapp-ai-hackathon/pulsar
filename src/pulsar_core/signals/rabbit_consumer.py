@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 from typing import Awaitable, Callable, Optional
 
 import aio_pika
 
 from ..config import PulsarConfig
 from .import_task import ImportTask
+
+logger = logging.getLogger(__name__)
 
 ImportHandler = Callable[[ImportTask], Awaitable[None]]
 
@@ -46,10 +49,18 @@ class ImportTaskConsumer:
                     try:
                         payload = json.loads(message.body.decode("utf-8"))
                         task = ImportTask.from_payload(payload)
-                    except Exception as exc:  # pylint: disable=broad-except
-                        print(f"[pulsar] failed to parse import task: {exc}")
+                    except (json.JSONDecodeError, ValueError, KeyError, TypeError) as exc:
+                        logger.error(f"Failed to parse import task: {exc}", exc_info=True)
                         continue
-                    await self.handler(task)
+                    except Exception as exc:  # pylint: disable=broad-except
+                        logger.error(f"Unexpected error processing import task: {exc}", exc_info=True)
+                        continue
+                    
+                    try:
+                        await self.handler(task)
+                    except Exception as exc:  # pylint: disable=broad-except
+                        logger.error(f"Error handling import task: {exc}", exc_info=True)
+                        # Continue processing other messages even if one fails
 
     async def stop(self) -> None:
         if self._channel:

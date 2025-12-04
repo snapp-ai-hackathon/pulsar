@@ -30,7 +30,20 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
 
     @app.get("/healthz")
     async def health():
-        return {"status": "ok"}
+        """Health check endpoint for monitoring and orchestration."""
+        try:
+            # Basic health check - verify store is accessible
+            store_path = cfg.ensure_cache_dir() / "timeseries"
+            return {
+                "status": "ok",
+                "store_path": str(store_path),
+                "store_exists": store_path.exists(),
+            }
+        except Exception as exc:
+            return {
+                "status": "degraded",
+                "error": str(exc),
+            }
 
     @app.get("/forecast")
     async def forecast(
