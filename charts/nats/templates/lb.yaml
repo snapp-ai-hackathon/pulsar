@@ -26,12 +26,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    metallb.universe.tf/address-pool: vpn-access
   labels:
     app: nats
     app.kubernetes.io/instance: nats-{{ .Release.Namespace }}
     app.kubernetes.io/name: nats
+    network.snappcloud.io/address-pool: vpn-access
   name: nats-mgmt-lb
 spec:
   ports:
