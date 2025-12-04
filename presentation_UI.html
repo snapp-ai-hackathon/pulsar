@@ -295,8 +295,8 @@
           <article class="card">
             <h3>Data &amp; Signals</h3>
             <p>
-              CSV snapshots, ClickHouse exports, and optional Redis/Rabbit collectors feed SnapshotBuilder + TimeSeriesStore.
-              We can stay productive even without direct prod access.
+              CSV snapshots and ClickHouse exports feed SnapshotBuilder + TimeSeriesStore. We can replay real surge behavior
+              offline and keep iterating without touching production systems.
             </p>
           </article>
           <article class="card">
@@ -489,8 +489,8 @@
           <article class="card">
             <h3>4 · Instant Retrain</h3>
             <p>
-              A NATS event (`train-online`) rebuilds snapshots and re-trains models in minutes. No Rabbit, no Redis —
-              just publish to NATS and let Pulsar refresh the ElasticNet/TFN stack automatically.
+              A NATS event (`train-online`) rebuilds snapshots and re-trains models in minutes — just publish to NATS and
+              let Pulsar refresh the ElasticNet/TFN stack automatically.
             </p>
           </article>
         </div>
