@@ -126,6 +126,10 @@ def parse_args(argv: Iterable[str] | None = None) -> argparse.Namespace:
 def build_runtime(
     cfg: PulsarConfig,
 ) -> Tuple[SnapshotBuilder, TimeSeriesStore, SimpleForecaster]:
+    if cfg.redis is None:
+        raise RuntimeError(
+            "Redis configuration is required for sync/import modes but is missing."
+        )
     redis_client = redis.from_url(cfg.redis.prepared_slave.url())
     loader = RedisSignalLoader(redis_client)
     builder = SnapshotBuilder(cfg, loader)

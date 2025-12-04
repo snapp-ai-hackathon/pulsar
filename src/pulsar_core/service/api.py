@@ -42,7 +42,21 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
             "min_history_points": cfg.forecast.min_history_points,
             "max_history_points": cfg.forecast.max_history_points,
         },
-        "redis": {
+        "clickhouse": {
+            "host": cfg.clickhouse.host,
+            "port": cfg.clickhouse.port,
+            "database": cfg.clickhouse.database,
+            "secure": cfg.clickhouse.secure,
+        },
+        "nats": {
+            "address": cfg.nats.address,
+            "subject": cfg.nats.subject,
+        },
+    }
+
+    # Only include redis and rabbitmq metadata if they are configured
+    if cfg.redis is not None:
+        deployment_snapshot["redis"] = {
             "raw_slave": {
                 "host": cfg.redis.raw_slave.host,
                 "port": cfg.redis.raw_slave.port,
@@ -55,24 +69,15 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
                 "db": cfg.redis.prepared_slave.db,
                 "ssl": cfg.redis.prepared_slave.ssl,
             },
-        },
-        "rabbitmq": {
+        }
+
+    if cfg.rabbitmq is not None:
+        deployment_snapshot["rabbitmq"] = {
             "host": cfg.rabbitmq.host,
             "port": cfg.rabbitmq.port,
             "vhost": cfg.rabbitmq.vhost,
             "queues": cfg.rabbitmq.queues.dict(),
-        },
-        "clickhouse": {
-            "host": cfg.clickhouse.host,
-            "port": cfg.clickhouse.port,
-            "database": cfg.clickhouse.database,
-            "secure": cfg.clickhouse.secure,
-        },
-        "nats": {
-            "address": cfg.nats.address,
-            "subject": cfg.nats.subject,
-        },
-    }
+        }
 
     app = FastAPI(title="Pulsar Bridge API")
 

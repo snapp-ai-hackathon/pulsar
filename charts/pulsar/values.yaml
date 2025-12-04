@@ -52,7 +52,31 @@ tolerations: []
 
 config:
   path: /etc/pulsar/config.yaml
-  contents: ""
+  contents: |
+    clickhouse:
+      host: 127.0.0.1
+      port: 9000
+      database: default
+      user: default
+      password: ""
+      secure: false
+
+    nats:
+      address: nats://127.0.0.1:4222
+      subject: pulsar.clickhouse
+
+    forecast:
+      horizons: [30, 60, 90]
+      min_history_points: 8
+      max_history_points: 96
+      city_ids: [1]
+      service_types: [1, 2, 3, 5, 7]
+
+    cache_dir: cache
+    period_duration_minutes: 7.5
+    collect_duration_minutes: 5.5
+    mlflow_tracking_uri:
+    mlflow_experiment: pulsar-forecast
 
 command:
   - pulsar

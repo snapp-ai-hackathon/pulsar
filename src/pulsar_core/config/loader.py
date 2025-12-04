@@ -95,8 +95,9 @@ class NatsConfig(BaseModel):
 
 
 class PulsarConfig(BaseModel):
-    redis: RedisConfig
-    rabbitmq: RabbitConfig
+    # Make redis and rabbitmq optional so they are not required in config files
+    redis: Optional[RedisConfig] = None
+    rabbitmq: Optional[RabbitConfig] = None
     clickhouse: ClickHouseConfig = Field(default_factory=ClickHouseConfig)
     nats: NatsConfig = Field(default_factory=NatsConfig)
     forecast: ForecastConfig = Field(default_factory=ForecastConfig)
