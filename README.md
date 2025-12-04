@@ -83,13 +83,15 @@ uv run pulsar clickhouse-export \
 All exports run the following ClickHouse query (updated with your timestamps and optional table override):
 
 ```
+
 SELECT `from`, to, service_type, city_id, hex_id, rule_sheet_id,
-       surge_percent, cumulative_surge_percent, surge_absolute,
-       cumulative_surge_absolute, rule_id, increase_factor, decrease_factor,
-       resolution, reason, absolute_reason, accept_rate, price_cnvr,
-       logstash_time, created_date, clickhouse_time
+surge_percent, cumulative_surge_percent, surge_absolute,
+cumulative_surge_absolute, rule_id, increase_factor, decrease_factor,
+resolution, reason, absolute_reason, accept_rate, price_cnvr,
+logstash_time, created_date, clickhouse_time
 FROM snapp_raw_log.kandoo_parameter_nats
 WHERE `from` > START_DATE AND `from` <= END_DATE;
+
 ```
 
 All CLI commands automatically look for configuration using this precedence:
@@ -146,14 +148,14 @@ The chart also supports custom env vars, probes, and imagePullSecrets for privat
 
 ## Infra Integration Cheat Sheet
 
-| Component                           | What to plug in                                                                                                                  | Where to edit                                                                                                                                     |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Redis (prepared + raw clusters)** | Same read-only endpoints that Go worker/collector use. We only read keys like `surge:ar:*`, `surge:pc:*`, `surge:factor:*`.      | `config.yaml` → `redis.prepared_slave` (for factors) and `redis.raw_slave` (for AR/PC).                                                           |
-| **RabbitMQ**                        | The queues fed by Kandoo scheduler: `kandoo.mru`, `kandoo.lru`, and optionally canary queues. Provide host/port/user/pass/vhost. | `config.yaml` → `rabbitmq.*` and `rabbitmq.queues.*`.                                                                                             |
+| Component                           | What to plug in                                                                                                                                                                                                                                   | Where to edit                                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Redis (prepared + raw clusters)** | Same read-only endpoints that Go worker/collector use. We only read keys like `surge:ar:*`, `surge:pc:*`, `surge:factor:*`.                                                                                                                       | `config.yaml` → `redis.prepared_slave` (for factors) and `redis.raw_slave` (for AR/PC).                                                           |
+| **RabbitMQ**                        | The queues fed by Kandoo scheduler: `kandoo.mru`, `kandoo.lru`, and optionally canary queues. Provide host/port/user/pass/vhost.                                                                                                                  | `config.yaml` → `rabbitmq.*` and `rabbitmq.queues.*`.                                                                                             |
 | **ClickHouse**                      | Host/user/password to the analytics cluster used by the export command (typically the prepared data replica). It always runs the `SELECT … FROM snapp_raw_log.kandoo_parameter_nats WHERE \`from\`` windowed query with your provided timestamps. | `config.yaml` → `clickhouse.*`.                                                                                                                   |
-| **NATS / JetStream**                | Subject URL where ClickHouse batches will be published. Also powers local subscribers listening for the exported payloads.       | `config.yaml` → `nats.*`. `clickhouse-export` will loop forever and publish batches every `--poll-interval` seconds unless you pass `--run-once`. |
-| **MLflow (optional)**               | Tracking server URI + experiment name used by pricing/ML team. Leave blank if you only need local training.                      | `config.yaml` → `mlflow_tracking_uri`, `mlflow_experiment`.                                                                                       |
-| **API ingress**                     | Any HTTP load balancer (Argo Rollouts, K8s svc, etc.) sitting in front of `app.py --command api`.                                | Deployment manifests (not shipped here) should mount the same `config.yaml` and point to port `8088`.                                             |
+| **NATS / JetStream**                | Subject URL where ClickHouse batches will be published. Also powers local subscribers listening for the exported payloads.                                                                                                                        | `config.yaml` → `nats.*`. `clickhouse-export` will loop forever and publish batches every `--poll-interval` seconds unless you pass `--run-once`. |
+| **MLflow (optional)**               | Tracking server URI + experiment name used by pricing/ML team. Leave blank if you only need local training.                                                                                                                                       | `config.yaml` → `mlflow_tracking_uri`, `mlflow_experiment`.                                                                                       |
+| **API ingress**                     | Any HTTP load balancer (Argo Rollouts, K8s svc, etc.) sitting in front of `app.py --command api`.                                                                                                                                                 | Deployment manifests (not shipped here) should mount the same `config.yaml` and point to port `8088`.                                             |
 
 ### Steps to replace config placeholders
 
@@ -180,7 +182,3 @@ That’s everything a teammate needs in order to fork this repo (or wipe the pre
 1. Wire pipeline inputs to real Snapp infra (Kafka topics, Redis clusters described in Confluence).
 2. Deploy the API via Argo Rollouts alongside `surge` services, fronted by the existing auth middlewares.
 3. Embed the Pulsar widget into the Snapp Driver app and schedule an A/B trial vs control fleet to validate income uplift.
-
-## Continuous Integration
-
-The workflow in `.github/workflows/ci.yaml` uses `uv` to install dependencies, runs a lightweight import/bytecode check, and builds the Docker image. On non-PR events (pushes to `master`, manual runs, tags) the job logs in to GHCR with `GITHUB_TOKEN` and pushes multi-tagged images such as `latest`, branch names, and the commit SHA.
