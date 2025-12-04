@@ -136,7 +136,7 @@ class NatsMLTrainer:
                     "surge_percent": surge_percent,
                     "surge_absolute": surge_absolute,
                 }
-                frames.append(pd.DataFrame([row_dict]))
+                frames.append(pd.DataFrame([row_dict],))
             except (ValueError, KeyError, TypeError) as exc:
                 logger.debug(f"Skipping invalid row: {exc}")
                 continue
@@ -265,7 +265,9 @@ class NatsMLTrainer:
         # Filter by service_types if specified
         if service_types:
             collected_rows = [
-                row for row in collected_rows if row.get("service_type") in service_types
+                row
+                for row in collected_rows
+                if row.get("service_type") in service_types
             ]
 
         frame = self._transform_to_training_format(collected_rows)
