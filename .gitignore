@@ -176,3 +176,8 @@ pyrightconfig.json
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 .idea/
+*.csv
+.DS_Store
+*.tar
+cache/
+mlruns/
