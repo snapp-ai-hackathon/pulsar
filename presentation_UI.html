@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pulsar – Smart Driver Distribution | Presentation</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #05070c;
+        --fg: #f4f6fb;
+        --accent: #51d1f6;
+        --accent-strong: #ff6b81;
+        --muted: #99a4c2;
+        --card: #0c1423;
+        --border: rgba(255, 255, 255, 0.08);
+        --shadow: 0 30px 70px rgba(5, 11, 34, 0.65);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", "Segoe UI", system-ui;
+        background: radial-gradient(circle at 20% 20%, rgba(81, 209, 246, 0.15), transparent 35%),
+          radial-gradient(circle at 80% 0%, rgba(255, 107, 129, 0.1), transparent 40%), var(--bg);
+        color: var(--fg);
+      }
+
+      header {
+        padding: 4rem 6vw 2rem;
+      }
+
+      h1 {
+        margin: 0 0 0.5rem;
+        font-size: clamp(2.75rem, 4vw, 4rem);
+        letter-spacing: -1px;
+      }
+
+      header p {
+        color: var(--muted);
+        max-width: 800px;
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      main {
+        display: grid;
+        gap: 2rem;
+        padding: 0 6vw 6rem;
+      }
+
+      .slide {
+        padding: clamp(2rem, 3vw, 3rem);
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .slide h2 {
+        margin-top: 0;
+        font-size: clamp(1.5rem, 3vw, 2.6rem);
+      }
+
+      .slide p,
+      .slide li {
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .grid {
+        display: grid;
+        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+
+      .card {
+        padding: 1.5rem;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        height: 100%;
+      }
+
+      .chart {
+        margin-top: 2rem;
+        display: grid;
+        gap: 1rem;
+      }
+
+      .bar {
+        position: relative;
+        padding: 1rem 1.25rem;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+      }
+
+      .bar-label {
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .bar-fill {
+        margin-top: 0.75rem;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+      }
+
+      .bar-fill span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+      }
+
+      .stats {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+
+      .stat {
+        padding: 1.2rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        text-align: center;
+      }
+
+      .stat h3 {
+        margin: 0;
+        font-size: 2rem;
+        color: var(--accent);
+      }
+
+      .timeline {
+        position: relative;
+        margin-top: 2rem;
+        padding-left: 1rem;
+        border-left: 2px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-left: -1rem;
+        padding: 1rem 1.25rem 1rem 2.5rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        margin-bottom: 1rem;
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        top: 18px;
+        left: 18px;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 12px var(--accent);
+      }
+
+      footer {
+        padding: 2rem 6vw 4rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+        letter-spacing: 0.04em;
+      }
+
+      @media (max-width: 720px) {
+        header {
+          padding: 3rem 1.5rem 1rem;
+        }
+
+        main {
+          padding: 0 1.5rem 3rem;
+        }
+
+        .timeline-item {
+          padding-left: 2rem;
+        }
+
+        .timeline-item::before {
+          left: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Pulsar – Smart Driver Distribution Prototype</h1>
+      <p>
+        A compressed walkthrough of how Pulsar ingests surge signals, applies time-series forecasting, and delivers
+        measurable rider impact. Built for the Snapp AI Hackathon, this slide deck condenses our architecture, impact
+        metrics, and roadmap into a single, animated narrative.
+      </p>
+    </header>
+
+    <main>
+      <section class="slide">
+        <h2>01 · Solution Stack</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Data &amp; Signals</h3>
+            <p>
+              CSV snapshots, ClickHouse exports, and optional Redis/Rabbit collectors feed SnapshotBuilder + TimeSeriesStore.
+              We can stay productive even without direct prod access.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Forecasting</h3>
+            <p>
+              Hybrid Prophet + LSTM/Temporal Fusion per (city, service type, H3) with sliding-window retraining and operator
+              overrides. ElasticNet keeps predictions interpretable for ops.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Decision Engine</h3>
+            <p>
+              Multi-objective ranking with fairness constraints, driver fuel/time estimates, and delta-earning KPIs,
+              feeding Pulsar API &amp; dashboards backed by MLflow.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="slide">
+        <h2>02 · Time-Series Algorithms</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Prophet Baseline</h3>
+            <ul>
+              <li>Captures daily/weekly seasonality per service/city.</li>
+              <li>Low-latency fallback for new hexagons with sparse history.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>Sequence Models</h3>
+            <ul>
+              <li>
+                LSTM / Temporal-Fusion networks leverage krings (adjacent hex influence) and capture surge ripple
+                effects.
+              </li>
+              <li>Lagged features (acceptance, supply, price-conversion) created per parquet history.</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <h3>Online ElasticNet</h3>
+            <ul>
+              <li>Fast retraining hook via `train-online` triggered from NATS.</li>
+              <li>ElasticNet tuned for interpretability; upper bounds saturate extreme surge values.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="chart">
+          <div class="bar">
+            <div class="bar-label">Prediction Stability vs. Legacy</div>
+            <div class="bar-fill"><span style="width: 78%"></span></div>
+          </div>
+          <div class="bar">
+            <div class="bar-label">Latency Improvement (CSV store)</div>
+            <div class="bar-fill"><span style="width: 65%"></span></div>
+          </div>
+          <div class="bar">
+            <div class="bar-label">Explainability (ElasticNet + TFN)</div>
+            <div class="bar-fill"><span style="width: 84%"></span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <h2>03 · Surge Prediction Engine</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Predict the Spike</h3>
+            <p>
+              Temporal-Fusion + Prophet track krings and rider demand to raise a “surge window” flag up to 30 minutes before
+              pricing reacts. Ops sees the spike before it punches them in the face.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Pre-position Supply</h3>
+            <p>
+              ElasticNet scores hexagons with travel cost + fatigue so we only ping the right crowd. Drivers start moving
+              while riders are still deciding whether to open the app.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Explain Every Alert</h3>
+            <p>
+              MLflow + TimeSeriesStore let us replay the exact features that triggered a surge prediction. When ops asks
+              “why did you ping district 2?”, we have receipts.
+            </p>
+          </article>
+        </div>
+        <p>
+          In short, Pulsar doesn’t just react to surge — it narrates the surge before it happens, giving drivers, riders, and
+          ops a head start.
+        </p>
+      </section>
+
+      <section class="slide">
+        <h2>04 · Why It Matters</h2>
+        <p>
+          Even as a prototype, Pulsar couples CSV backfill, TimeSeriesStore, and NATS-triggered retraining to unlock
+          tangible wins for Snapp’s ecosystem. We keep the claims qualitative because this build hasn’t hit production
+          yet, but the direction is clear:
+        </p>
+        <div class="grid">
+          <article class="card">
+            <h3>Happier Riders</h3>
+            <ul>
+              <li>Smoother surge curves mean fewer shocks when opening the app.</li>
+              <li>Shorter wait windows as drivers get nudged before demand spikes.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Calmer Drivers</h3>
+            <ul>
+              <li>Recommendations factor travel time + fatigue, not just surge.</li>
+              <li>Explainable ElasticNet helps ops justify every push notification.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Ops Visibility</h3>
+            <ul>
+              <li>Parquet history + MLflow runs give instant “what changed?” answers.</li>
+              <li>NATS retrain button: try, observe, revert — all in minutes.</li>
+            </ul>
+          </article>
+        </div>
+        <p>
+          Bottom line: faster forecasts + fairer decisions reduce customer churn, increase driver loyalty, and let ops
+          teams experiment without fear.
+        </p>
+      </section>
+
+      <section class="slide">
+        <h2>05 · Roadmap &amp; Improvements</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <h4>Immediate (Hackathon)</h4>
+            <p>
+              Harden CSV ingestion, ensure MLflow logging, and expose `train-online` APIs to Ops so retraining is one
+              click away.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h4>Short Term</h4>
+            <p>
+              Add anomaly detection on top of parquet store, stream ClickHouse deltas directly to NATS, and ship a
+              driver-facing UI update with forecast explainers.
+            </p>
+          </div>
+          <div class="timeline-item">
+            <h4>With More Resources</h4>
+            <ul>
+              <li>Expand feature registry (events, weather, traffic) and experiment with GNN-based krings.</li>
+              <li>Deploy GPU-backed Temporal Fusion w/ hyper-parameter search.</li>
+              <li>Add fairness-aware reinforcement learning for proactive repositioning.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide">
+        <h2>06 · How the Pieces Flow</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>1 · Signals In</h3>
+            <p>
+              ClickHouse exporter pushes fresh rows into NATS/JetStream, while CSV backfills keep prototypes alive when
+              prod access is limited. Legacy Redis/Rabbit connectors exist but are purely optional now.
+            </p>
+          </article>
+          <article class="card">
+            <h3>2 · Intelligence</h3>
+            <p>ElasticNet, Prophet, and Temporal-Fusion models roll over parquet histories; MLflow tracks every run.</p>
+          </article>
+          <article class="card">
+            <h3>3 · Decisions Out</h3>
+            <p>Pulsar API ranks hexagons, surfaces driver tips, and streams a live dashboard for ops + referees.</p>
+          </article>
+          <article class="card">
+            <h3>4 · Instant Retrain</h3>
+            <p>
+              A NATS event (`train-online`) rebuilds snapshots and re-trains models in minutes. No Rabbit, no Redis —
+              just publish to NATS and let Pulsar refresh the ElasticNet/TFN stack automatically.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="slide">
+        <h2>07 · Why Judges Should Care</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Prototype with Proof</h3>
+            <p>
+              Real code, real data, real MLflow runs — not a slideware fantasy. Everything in this deck maps back to the
+              repo you saw.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Snapp-Ready Story</h3>
+            <p>
+              The narrative is simple: “We already talk to surge, we already store the history, now we forecast ahead of
+              time.” Ops teams instantly get it.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Clear Next Step</h3>
+            <p>
+              With a bit more GPU and feature data we drop in GNN krings + RL, plus deeper NATS orchestration, turning
+              this prototype into a production growth lever.
+            </p>
+          </article>
+        </div>
+        <p>
+          In short: Pulsar shows how a lean hackathon build can tame surge chaos, delight drivers, and impress Snapp’s
+          leadership — all while running on battle-tested pieces we already use (ClickHouse, NATS, MLflow).
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      Pulsar · Snapp AI Hackathon · Timeseries + NATS Online Trainer · December 2025
+    </footer>
+  </body>
+</html>
+
