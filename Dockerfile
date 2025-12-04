@@ -24,26 +24,18 @@ COPY config.example.yaml sample_tasks.json ./
 
 FROM python:3.14-slim-bookworm AS runtime
 
-# Create venv
-RUN python -m venv .venv
+# Set working directory
+WORKDIR /app
 
-# Ensure pip is up to date inside venv
-RUN . .venv/bin/activate && pip install --upgrade pip
-
-# Install deps into venv
-COPY requirements.txt .
-RUN . .venv/bin/activate && pip install -r requirements.txt
-
-COPY . .
+# Create venv structure (will be populated by the build stage copy)
+RUN python -m venv .venv || true
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
   VIRTUAL_ENV=/app/.venv \
   PATH="/app/.venv/bin:$PATH"
 
-WORKDIR /app
-
-# Copy virtual environment from build stage
+# Copy virtual environment from build stage (overwrites the empty venv above)
 COPY --from=build /app/.venv /app/.venv
 
 # Copy application files
