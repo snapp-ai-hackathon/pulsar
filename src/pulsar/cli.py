@@ -60,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
     train_parser.add_argument(
         "--model-type",
         choices=["elasticnet", "cnn"],
-        default="elasticnet",
+        default="cnn",
         help="Select training backend",
     )
     train_parser.add_argument(

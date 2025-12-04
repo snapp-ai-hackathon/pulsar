@@ -49,4 +49,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Set entrypoint and default command
 ENTRYPOINT ["pulsar"]
-CMD ["train --model-type cnn"]
+CMD ["train"]
