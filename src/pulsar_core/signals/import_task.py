@@ -26,7 +26,7 @@ class ImportTask:
     service_type: int
     city_id: int
     period: PeriodWindow
-    expansion_weight: Optional[ExpansionWeight] = None
+    expansion_weight: ExpansionWeight | None = None
 
     @classmethod
     def from_payload(cls, payload: Dict) -> "ImportTask":

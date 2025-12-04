@@ -10,11 +10,6 @@ import json
 import sys
 from pathlib import Path
 
-CURRENT_DIR = Path(__file__).resolve().parent.parent
-SYS_PATH = CURRENT_DIR / "src"
-if SYS_PATH.exists() and str(SYS_PATH) not in sys.path:
-    sys.path.insert(0, str(SYS_PATH))
-
 from pulsar_core.config import load_config
 from pulsar_core.features import SnapshotBuilder
 from pulsar_core.models import SimpleForecaster
@@ -25,6 +20,11 @@ from pulsar_core.signals import (
     load_csv_files,
 )
 from pulsar_core.store import TimeSeriesStore
+
+CURRENT_DIR = Path(__file__).resolve().parent.parent
+SYS_PATH = CURRENT_DIR / "src"
+if SYS_PATH.exists() and str(SYS_PATH) not in sys.path:
+    sys.path.insert(0, str(SYS_PATH))
 
 
 def process_csv_files(

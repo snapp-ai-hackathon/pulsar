@@ -29,6 +29,12 @@ jobs:
       - name: Sync dependencies
         run: uv sync --group dev
 
+      - name: Ruff formatting check
+        run: uv run ruff format --check .
+
+      - name: Ruff lint
+        run: uv run ruff check .
+
       - name: Bytecode smoke test
         run: uv run python -m compileall src
 
