@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.7
 
-FROM ghcr.io/astral-sh/uv:python3.11-bookworm AS build
+FROM ghcr.io/astral-sh/uv:python3.14-bookworm AS build
 WORKDIR /app
 
 # Copy only dependency manifests first for optimal layer caching
@@ -10,7 +10,7 @@ COPY pyproject.toml uv.lock README.md ./
 # Increase timeout for large package downloads (torch, CUDA packages)
 # Set longer timeout and enable concurrent downloads for better performance
 ENV UV_HTTP_TIMEOUT=600 \
-    UV_CONCURRENT_DOWNLOADS=10
+  UV_CONCURRENT_DOWNLOADS=10
 
 # Install dependencies first (this layer will be cached if dependencies don't change)
 RUN uv sync --frozen --no-dev
@@ -22,12 +22,12 @@ COPY scripts ./scripts
 COPY datasets ./datasets
 COPY config.example.yaml sample_tasks.json ./
 
-FROM python:3.11-slim-bookworm AS runtime
+FROM python:3.14-slim-bookworm AS runtime
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
-    VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
+  VIRTUAL_ENV=/app/.venv \
+  PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
 
@@ -43,7 +43,7 @@ EXPOSE 8088
 # Health check for the API service
 # Use python from the virtual environment or system python3
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD /app/.venv/bin/python -c "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz').read()" || exit 1
+  CMD /app/.venv/bin/python -c "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz').read()" || exit 1
 
 # Set entrypoint and default command
 ENTRYPOINT ["pulsar"]
