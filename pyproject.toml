@@ -28,6 +28,7 @@ dependencies = [
   "nats-py>=2.7.0",
   "clickhouse-driver>=0.2.9",
   "tenacity>=8.2.0",
+  "prometheus-client>=0.20.0",
 ]
 
 [project.scripts]

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import time
 from pathlib import Path
 from typing import Iterable, Tuple
 
@@ -66,6 +67,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     train_parser.add_argument("--cnn-epochs", type=int, default=25)
     train_parser.add_argument("--cnn-batch-size", type=int, default=128)
+    train_parser.add_argument(
+        "--prometheus-pushgateway-url",
+        dest="prometheus_pushgateway_url",
+        help="Optional Prometheus Pushgateway URL to push training metrics",
+    )
 
     ch_parser = subparsers.add_parser(
         "clickhouse-export",
@@ -151,6 +157,7 @@ def handle_offline_tasks(
 
 
 def main(argv: Iterable[str] | None = None) -> None:
+    start_time = time.time()
     args = parse_args(argv)
     cfg = load_config(args.config)
 
@@ -160,7 +167,11 @@ def main(argv: Iterable[str] | None = None) -> None:
         return
 
     if args.command == "train":
+        print("Training model")
+        app = create_app(cfg)
+        uvicorn.run(app, host=args.host, port=args.port)
         if args.model_type == "cnn":
+            print("Training CNN model")
             tcfg = CNNTrainerConfig(
                 window_size=args.cnn_window,
                 epochs=args.cnn_epochs,
@@ -169,16 +180,75 @@ def main(argv: Iterable[str] | None = None) -> None:
             trainer = CNNTrainer(cfg, tcfg)
             result = trainer.train(service_types=args.service_types)
         else:
+            print("Training ElasticNet model")
             trainer = MLTrainer(cfg)
             result = trainer.train(
                 service_types=args.service_types,
                 alpha=args.alpha,
                 l1_ratio=args.l1_ratio,
             )
+
+        duration = time.time() - start_time
         print(
-            f"[pulsar] trained on {result.rows} rows ({result.hexagons} hexagons). "
+            f"[pulsar] trained on {result.rows} rows ({result.hexagons} hexagons) in {duration:.2f} seconds. "
             f"MAE={result.mae:.2f}, RMSE={result.rmse:.2f}, model_uri={result.model_uri}"
         )
+
+        # Optionally push metrics to Prometheus Pushgateway for historical tracking
+        if getattr(args, "prometheus_pushgateway_url", None):
+            try:
+                from prometheus_client import (
+                    CollectorRegistry,
+                    Gauge,
+                    push_to_gateway,
+                )
+            except ImportError:
+                print(
+                    "[pulsar] prometheus_client not installed, skipping Prometheus push",
+                    flush=True,
+                )
+            else:
+                registry = CollectorRegistry()
+
+                g_rows = Gauge(
+                    "pulsar_training_rows",
+                    "Number of rows used for training",
+                    registry=registry,
+                )
+                g_hexagons = Gauge(
+                    "pulsar_training_hexagons",
+                    "Number of hexagons used for training",
+                    registry=registry,
+                )
+                g_mae = Gauge(
+                    "pulsar_training_mae",
+                    "Mean absolute error of the trained model",
+                    registry=registry,
+                )
+                g_rmse = Gauge(
+                    "pulsar_training_rmse",
+                    "Root mean squared error of the trained model",
+                    registry=registry,
+                )
+                g_duration = Gauge(
+                    "pulsar_training_duration_seconds",
+                    "Training duration in seconds",
+                    registry=registry,
+                )
+
+                g_rows.set(result.rows)
+                g_hexagons.set(result.hexagons)
+                g_mae.set(result.mae)
+                g_rmse.set(result.rmse)
+                g_duration.set(duration)
+
+                # Use fixed job name; instances are separated by Pushgateway grouping labels
+                push_to_gateway(
+                    args.prometheus_pushgateway_url,
+                    job="pulsar_training",
+                    registry=registry,
+                )
+
         return
 
     if args.command == "sync":
