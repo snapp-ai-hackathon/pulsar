@@ -27,6 +27,7 @@ dependencies = [
   "torch>=2.4.0",
   "nats-py>=2.7.0",
   "clickhouse-driver>=0.2.9",
+  "tenacity>=8.2.0",
 ]
 
 [project.scripts]

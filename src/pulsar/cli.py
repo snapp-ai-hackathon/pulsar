@@ -190,7 +190,7 @@ def main(argv: Iterable[str] | None = None) -> None:
         return
 
     if args.command == "clickhouse-export":
-        query, columns = build_parameter_query(
+        query, columns, params = build_parameter_query(
             args.table, args.start_date, args.end_date
         )
 
@@ -204,6 +204,7 @@ def main(argv: Iterable[str] | None = None) -> None:
                 dry_run=args.dry_run,
                 query=query,
                 columns=columns,
+                params=params,
             )
             print(
                 f"[pulsar] published {summary.rows} rows across {summary.batches} batches "
@@ -223,6 +224,7 @@ def main(argv: Iterable[str] | None = None) -> None:
                 poll_interval=args.poll_interval,
                 query=query,
                 columns=columns,
+                params=params,
             ):
                 print(
                     f"[pulsar] iteration {iteration}: published {summary.rows} rows across "
