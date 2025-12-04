@@ -176,8 +176,8 @@ def main(argv: Iterable[str] | None = None) -> None:
 
     if args.command == "train":
         print("Training model")
-        app = create_app(cfg)
-        uvicorn.run(app, host=args.host, port=args.port)
+        # app = create_app(cfg)
+        # uvicorn.run(app, host=args.host, port=args.port)
         if args.model_type == "cnn":
             print("Training CNN model")
             tcfg = CNNTrainerConfig(

@@ -92,19 +92,19 @@ args:
 extraEnv: []
 envFrom: []
 
-livenessProbe:
-  httpGet:
-    path: /healthz
-    port: http
-  initialDelaySeconds: 120
-  periodSeconds: 150
-
-readinessProbe:
-  httpGet:
-    path: /healthz
-    port: http
-  initialDelaySeconds: 60
-  periodSeconds: 90
+#livenessProbe:
+#  httpGet:
+#    path: /healthz
+#    port: http
+#  initialDelaySeconds: 120
+#  periodSeconds: 150
+#
+#readinessProbe:
+#  httpGet:
+#    path: /healthz
+#    port: http
+#  initialDelaySeconds: 60
+#  periodSeconds: 90
 
 volumeMounts: []
 volumes: []
