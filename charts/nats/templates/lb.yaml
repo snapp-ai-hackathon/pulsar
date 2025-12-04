@@ -4,7 +4,7 @@ kind: Service
 metadata:
   labels:
     app: nats
-    app.kubernetes.io/instance: nats-teh1-{{ .Release.Namespace }}
+    app.kubernetes.io/instance: nats-{{ .Release.Namespace }}
     app.kubernetes.io/name: nats
   name: nats-lb
 spec:
@@ -18,7 +18,7 @@ spec:
       protocol: TCP
       targetPort: 7522
   selector:
-    app.kubernetes.io/instance: nats-teh1-{{ .Release.Namespace }}
+    app.kubernetes.io/instance: nats-{{ .Release.Namespace }}
     app.kubernetes.io/name: nats
   type: LoadBalancer
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
@@ -30,7 +30,7 @@ metadata:
     metallb.universe.tf/address-pool: vpn-access
   labels:
     app: nats
-    app.kubernetes.io/instance: nats-teh1-{{ .Release.Namespace }}
+    app.kubernetes.io/instance: nats-{{ .Release.Namespace }}
     app.kubernetes.io/name: nats
   name: nats-mgmt-lb
 spec:
@@ -40,7 +40,7 @@ spec:
       protocol: TCP
       targetPort: 4222
   selector:
-    app.kubernetes.io/instance: nats-teh1-{{ .Release.Namespace }}
+    app.kubernetes.io/instance: nats-{{ .Release.Namespace }}
     app.kubernetes.io/name: nats
   type: LoadBalancer
   loadBalancerIP: {{ .Values.management.loadBalancerIP }}
