@@ -1,0 +1,10 @@
+apiVersion: v2
+name: my-clickhouse
+description: Minimal wrapper chart for a single-node ClickHouse on OpenShift
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: clickhouse
+    version: 0.3.6        # or the latest clickhouse-x.y.z from Altinity releases
+    repository: "https://altinity.github.io/helm-charts"

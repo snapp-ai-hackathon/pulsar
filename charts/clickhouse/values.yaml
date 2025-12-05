@@ -1,0 +1,24 @@
+clickhouse:
+  defaultUser:
+    password: "changeme"
+    allowExternalAccess: false
+
+  replicasCount: 1
+  shardsCount: 1
+
+  persistence:
+    enabled: true
+    size: 10Gi
+    storageClass: ""
+
+  logs:
+    enabled: false
+
+  service:
+    type: ClusterIP
+
+  operator:
+    enabled: true
+
+  podSecurityContext: {}
+  securityContext: {}
