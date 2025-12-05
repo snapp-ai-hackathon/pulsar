@@ -62,7 +62,7 @@ config:
       secure: false
 
     nats:
-      address: nats://127.0.0.1:4222
+      address: nats://nats:4222
       subject: pulsar.clickhouse
 
     forecast:
