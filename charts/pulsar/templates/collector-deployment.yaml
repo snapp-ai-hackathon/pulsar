@@ -54,6 +54,8 @@ spec:
             - name: pulsar-config
               mountPath: {{ .Values.config.path | quote }}
               subPath: config.yaml
+            - name: pulsar-results
+              mountPath: "/tmp"
             {{- with .Values.volumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -61,6 +63,8 @@ spec:
         - name: pulsar-config
           configMap:
             name: {{ include "pulsar.fullname" . }}
+        - name: pulsar-results
+          emptyDir: {}
         {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
