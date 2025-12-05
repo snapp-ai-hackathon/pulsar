@@ -4,6 +4,9 @@ clickhouse:
     allowExternalAccess: false
 
   users:
+    - name: clickhouse_operator
+      password: "secret"
+
     - name: pulsar_user
       hostIP: ["0.0.0.0/0"]
       password: "pulsar_password"
