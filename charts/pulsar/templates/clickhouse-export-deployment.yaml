@@ -1,0 +1,107 @@
+{{- if .Values.clickhouseExport.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-%s" (include "pulsar.fullname" .) "clickhouse-export" | trunc 63 | trimSuffix "-" }}
+  labels:
+    {{- include "pulsar.labels" . | nindent 4 }}
+    app.kubernetes.io/component: clickhouse-export
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "pulsar.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: clickhouse-export
+  template:
+    metadata:
+      labels:
+        {{- include "pulsar.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: clickhouse-export
+      {{- with .Values.clickhouseExport.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "pulsar.fullname" . }}
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: clickhouse-export
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - pulsar
+          args:
+            - --config
+            - {{ .Values.config.path | quote }}
+            - clickhouse-export
+            - --table
+            - {{ .Values.clickhouseExport.table | quote }}
+            - --batch-size
+            - "{{ .Values.clickhouseExport.batchSize }}"
+            - --poll-interval
+            - "{{ .Values.clickhouseExport.pollInterval }}"
+            {{- if .Values.clickhouseExport.limit }}
+            - --limit
+            - "{{ .Values.clickhouseExport.limit }}"
+            {{- end }}
+            {{- if .Values.clickhouseExport.subject }}
+            - --subject
+            - {{ .Values.clickhouseExport.subject | quote }}
+            {{- end }}
+            {{- if .Values.clickhouseExport.startDate }}
+            - --start-date
+            - {{ .Values.clickhouseExport.startDate | quote }}
+            {{- end }}
+            {{- if .Values.clickhouseExport.endDate }}
+            - --end-date
+            - {{ .Values.clickhouseExport.endDate | quote }}
+            {{- end }}
+            {{- if .Values.clickhouseExport.dryRun }}
+            - --dry-run
+            {{- end }}
+            {{- if .Values.clickhouseExport.runOnce }}
+            - --run-once
+            {{- end }}
+            {{- with .Values.clickhouseExport.extraArgs }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          env:
+            {{- toYaml (default .Values.extraEnv .Values.clickhouseExport.extraEnv) | nindent 12 }}
+          envFrom:
+            {{- toYaml (default .Values.envFrom .Values.clickhouseExport.envFrom) | nindent 12 }}
+          resources:
+            {{- toYaml (default .Values.resources .Values.clickhouseExport.resources) | nindent 12 }}
+          volumeMounts:
+            - name: pulsar-config
+              mountPath: {{ .Values.config.path | quote }}
+              subPath: config.yaml
+            {{- with .Values.clickhouseExport.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: pulsar-config
+          configMap:
+            name: {{ include "pulsar.fullname" . }}
+        {{- with .Values.clickhouseExport.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

@@ -89,3 +89,22 @@ envFrom: []
 
 volumeMounts: []
 volumes: []
+
+clickhouseExport:
+  enabled: false
+  podAnnotations: {}
+  table: snapp_raw_log.kandoo_parameter_nats
+  batchSize: 1000
+  limit:
+  pollInterval: 60
+  subject: ""
+  startDate: ""
+  endDate: ""
+  dryRun: false
+  runOnce: false
+  extraArgs: []
+  extraEnv: []
+  envFrom: []
+  resources: {}
+  volumeMounts: []
+  volumes: []

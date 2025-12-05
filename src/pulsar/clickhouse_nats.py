@@ -478,6 +478,7 @@ async def stream_clickhouse_table_async(
     columns: Sequence[str] | None = None,
     params: dict[str, Any] | None = None,
     progress_callback: Callable[[int], None] | None = None,
+    query_factory: Callable[[], tuple[str | None, Sequence[str] | None, dict[str, Any] | None]] | None = None,
 ):
     """
     Async streaming export with connection reuse.
@@ -486,6 +487,7 @@ async def stream_clickhouse_table_async(
     - Reuses the NATS connection across iterations
     - Reuses the ClickHouse connection across iterations
     - Properly handles async/await without creating new event loops
+    - Optionally rebuilds the query each iteration via query_factory
 
     Yields:
         Tuple of (iteration number, PublishSummary)
@@ -514,14 +516,19 @@ async def stream_clickhouse_table_async(
                 iteration += 1
                 logger.debug("Starting iteration", extra={"iteration": iteration})
 
+                if query_factory:
+                    iter_query, iter_columns, iter_params = query_factory()
+                else:
+                    iter_query, iter_columns, iter_params = query, columns, params
+
                 batches = _iter_clickhouse_batches(
                     cfg,
                     table=table,
                     batch_size=batch_size,
                     limit=limit,
-                    query=query,
-                    columns=columns,
-                    params=params,
+                    query=iter_query,
+                    columns=iter_columns,
+                    params=iter_params,
                     progress_callback=progress_callback,
                     connection_manager=ch_manager,
                 )
@@ -556,12 +563,14 @@ def stream_clickhouse_table(
     columns: Sequence[str] | None = None,
     params: dict[str, Any] | None = None,
     progress_callback: Callable[[int], None] | None = None,
+    query_factory: Callable[[], tuple[str | None, Sequence[str] | None, dict[str, Any] | None]] | None = None,
 ) -> Iterator[tuple[int, PublishSummary]]:
     """
     Synchronous wrapper for streaming export.
 
     For better performance and resource usage, consider using
     stream_clickhouse_table_async() directly in an async context.
+    Supports dynamic query rebuilding via query_factory.
     """
     if poll_interval <= 0:
         raise ValueError("poll_interval must be positive seconds")
@@ -576,14 +585,19 @@ def stream_clickhouse_table(
         iteration = 0
         while True:
             iteration += 1
+            if query_factory:
+                iter_query, iter_columns, iter_params = query_factory()
+            else:
+                iter_query, iter_columns, iter_params = query, columns, params
+
             batches = _iter_clickhouse_batches(
                 cfg,
                 table=table,
                 batch_size=batch_size,
                 limit=limit,
-                query=query,
-                columns=columns,
-                params=params,
+                query=iter_query,
+                columns=iter_columns,
+                params=iter_params,
                 progress_callback=progress_callback,
                 connection_manager=ch_manager,
             )

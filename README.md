@@ -85,6 +85,7 @@ uv run pulsar clickhouse-export \
   --end-date 2024-12-02T00:00:00Z \
   --batch-size 2000 --limit 10000
 #    runs continuously; add --run-once if you just want a single pass
+#    omit --start-date/--end-date to start following new rows from "now"
 ```
 
 All exports run the following ClickHouse query (updated with your timestamps and optional table override):
@@ -138,6 +139,12 @@ helm upgrade --install pulsar charts/pulsar \
   --set image.repository=ghcr.io/<owner>/<repo> \
   --set image.tag=latest \
   --set-string config.contents="$(cat config.yaml)"
+
+# deploy a continuous ClickHouse exporter (follows new rows from "now")
+helm upgrade --install pulsar charts/pulsar \
+  --set clickhouseExport.enabled=true \
+  --set image.repository=ghcr.io/<owner>/<repo> \
+  --set image.tag=latest
 ```
 
 Key values in `charts/pulsar/values.yaml`:
