@@ -106,9 +106,7 @@ class MLTrainer:
 
         # Check if already trained
         if not force and self.tracker.is_trained(train_date):
-            raise ValueError(
-                f"Date {train_date} has already been trained. Use --force to retrain."
-            )
+            return None
 
         dataset = self._load_dataset(service_types)
 
