@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/ali-m07/pulsar
+  repository: ghcr.io/snapp-ai-hackathon/pulsar
   tag: "latest"
   pullPolicy: IfNotPresent
   pullSecrets: []
@@ -26,17 +26,6 @@ service:
   type: ClusterIP
   port: 80
   targetPort: 8088
-
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: pulsar.local
-      paths:
-        - path: /
-          pathType: Prefix
-  tls: []
 
 resources:
   limits:

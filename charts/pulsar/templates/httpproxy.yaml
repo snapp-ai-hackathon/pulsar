@@ -9,7 +9,7 @@ spec:
   routes:
     - services:
         - name: pulsar
-          port: {{ .Values.service.targetPort }}
+          port: {{ .Values.service.port }}
           weight: 100
       timeoutPolicy:
         response: 2m
