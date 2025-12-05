@@ -3,6 +3,12 @@ clickhouse:
     password: "secret"
     allowExternalAccess: false
 
+  users:
+    - name: pulsar_user
+      hostIP: ["0.0.0.0/0"]
+      password: "pulsar_password"
+      accessManagement: 0
+
   replicasCount: 1
   shardsCount: 1
 
