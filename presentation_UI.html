@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>پولسار – موتور پیش‌بینی و توزیع هوشمند راننده</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Pulsar – Smart Driver Distribution | Presentation</title>
     <style>
       html {
         scroll-behavior: smooth;
@@ -30,12 +27,10 @@
 
       body {
         margin: 0;
-        font-family: "Vazirmatn", "Segoe UI", system-ui;
+        font-family: "Space Grotesk", "Segoe UI", system-ui;
         background: radial-gradient(circle at 20% 20%, rgba(81, 209, 246, 0.15), transparent 35%),
           radial-gradient(circle at 80% 0%, rgba(255, 107, 129, 0.1), transparent 40%), var(--bg);
         color: var(--fg);
-        direction: rtl;
-        text-align: right;
       }
 
       .top-nav {
@@ -86,13 +81,6 @@
 
       header {
         padding: 5.5rem 6vw 2.5rem;
-        border-radius: 24px;
-        margin: 0 6vw;
-        background: linear-gradient(90deg, rgba(5, 7, 12, 0.82), rgba(5, 7, 12, 0.6)),
-          url("https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1400&q=80");
-        background-size: cover;
-        background-position: center;
-        box-shadow: var(--shadow);
       }
 
       h1 {
@@ -281,94 +269,96 @@
   </head>
   <body>
     <nav class="top-nav">
-      <div class="brand">پولسار · Snapp AI Hackathon</div>
+      <div class="brand">Pulsar · Snapp AI Hackathon</div>
       <div class="nav-links">
-        <a href="#slide-1">نمای کلی</a>
-        <a href="#slide-3">موتور سرج</a>
-        <a href="#slide-4">تأثیر</a>
-        <a href="#slide-6">جریان</a>
-        <a href="#slide-8">پروداکشن</a>
+        <a href="#slide-1">Overview</a>
+        <a href="#slide-3">Surge engine</a>
+        <a href="#slide-4">Impact</a>
+        <a href="#slide-6">Flow</a>
+        <a href="#slide-8">Production</a>
       </div>
     </nav>
 
     <header>
-      <h1>پولسار – موتور پیش‌بینی و توزیع هوشمند راننده</h1>
+      <h1>Pulsar – Smart Driver Distribution Prototype</h1>
       <p>
-        <strong>آمادهٔ پروداکشن از روز اول:</strong> تنها موتور پیش‌بینی سرج که با زیرساخت کامل MLOps، مدل‌های چندلایه (ElasticNet + CNN)،
-        و معماری رویدادمحور (NATS) ساخته شده و روی دادهٔ واقعی اسنپ آموزش دیده است.
+        <strong>Production-ready from day one:</strong> Pulsar is the only surge prediction system built with complete MLOps infrastructure, 
+        multi-layer models (ElasticNet + CNN), and event-driven NATS integration from the start — not a lab PoC, but a production platform 
+        already trained on real Snapp data and ready to deploy.
       </p>
     </header>
 
     <main>
       <section id="slide-1" class="slide">
-        <h2>۰۱ · چرا پولسار متفاوت است؟</h2>
+        <h2>01 · Why Pulsar is Different</h2>
         <div class="grid">
           <article class="card">
-            <h3>۱. مهندسی دادهٔ زمان‌سری</h3>
+            <h3>1. Time-Series Feature Engineering</h3>
             <p>
-              <strong>آمادهٔ پروداکشن:</strong> ساخت خودکار دیتاست‌های زمان‌سری از دادهٔ خام ClickHouse/CSV،
-              ذخیره‌سازی بهینه در Parquet، و تولید خودکار lag و پنجره‌های زمانی.
+              <strong>Production-Ready:</strong> Automatic time-series dataset construction from raw ClickHouse/CSV data. 
+              Optimized Parquet storage with TimeSeriesStore. Auto-generated lag features, cumulative signals, and time windows.
             </p>
-            <p><strong>تفاوت:</strong> منتظر دادهٔ تمیز نمی‌مانیم؛ لایهٔ داده را خودمان می‌سازیم.</p>
+            <p><strong>Difference:</strong> Most solutions rely on pre-processed data; we build the data layer ourselves.</p>
           </article>
           <article class="card">
-            <h3>۲. مدل‌سازی هیبریدی (ElasticNet + CNN)</h3>
+            <h3>2. Multi-Model Hybrid Approach</h3>
             <p>
-              <strong>ElasticNet:</strong> سریع و قابل‌توضیح برای شفافیت و اعتبارسنجی.<br>
-              <strong>Temporal CNN:</strong> شبکهٔ عصبی عمیق برای پیش‌بینی چندافقی (۳۰/۶۰/۹۰ دقیقه).<br>
-              آموزش‌دیده روی دادهٔ واقعی با لاگ کامل در MLflow.
+              <strong>ElasticNet:</strong> Fast, interpretable baseline for validation.<br>
+              <strong>Temporal CNN:</strong> Deep neural network for multi-horizon prediction (30/60/90 min).<br>
+              Trained on real data with complete MLflow logging.
             </p>
-            <p><strong>تفاوت:</strong> ترکیب مدل کلاسیک و عمیق در یک پایپ‌لاین واحد، نه یک مدل تکی.</p>
+            <p><strong>Difference:</strong> Hybrid classic + deep models in one pipeline, not just a single model.</p>
           </article>
           <article class="card">
-            <h3>۳. MLOps رویدادمحور</h3>
+            <h3>3. Event-Driven MLOps</h3>
             <p>
-              <strong>MLflow:</strong> رجیستری کامل مدل، متریک و آرتیفکت.<br>
-              <strong>یکپارچگی NATS:</strong> آموزش رویدادمحور، بدون کران‌جاب.<br>
-              API آمادهٔ پروداکشن با FastAPI و داشبورد عملیاتی.
+              <strong>MLflow:</strong> Complete model registry, metrics, and artifacts.<br>
+              <strong>NATS Integration:</strong> Event-driven training, not cron jobs.<br>
+              Production-ready API with FastAPI and operational dashboard.
             </p>
-            <p><strong>تفاوت:</strong> MLOps از روز اول، نه افزونهٔ بعدی.</p>
+            <p><strong>Difference:</strong> MLOps from day one, not as an add-on later.</p>
           </article>
         </div>
         <div class="grid" style="margin-top: 1.5rem;">
           <article class="card">
-            <h3>✅ شواهد آمادگی پروداکشن</h3>
+            <h3>✅ Production-Ready Evidence</h3>
             <ul>
-              <li>مدل‌های آموزش‌دیده روی ۸ روز دادهٔ واقعی</li>
-              <li>آرتیفکت‌های MLflow در ریپو (قابل مشاهده مستقیم)</li>
-              <li>پایپ‌لاین کامل: CSV/ClickHouse → پیش‌بینی در یک CLI</li>
-              <li>Docker + Helm آمادهٔ استقرار روی Kubernetes</li>
+              <li>Models trained on 8 days of real data</li>
+              <li>MLflow artifacts in repo (directly inspectable)</li>
+              <li>Complete pipeline: CSV/ClickHouse → prediction in single CLI</li>
+              <li>Docker + Helm charts ready for Kubernetes</li>
             </ul>
           </article>
         </div>
       </section>
 
       <section id="slide-2" class="slide">
-        <h2>۰۲ · الگوریتم‌های زمان‌سری</h2>
+        <h2>02 · Time-Series Algorithms</h2>
         <div class="grid">
           <article class="card">
-            <h3>Baseline روند</h3>
+            <h3>Trend Baseline</h3>
             <ul>
-              <li>الگوی خطی/فصلی برای هر سرویس/شهر به‌عنوان fallback سریع.</li>
-              <li>گزینهٔ کم‌تاخیر برای هگزاگون‌های جدید با تاریخچه کم.</li>
+              <li>SimpleForecaster-style linear/seasonal trends per service/city as a cheap fallback.</li>
+              <li>Low-latency option for new hexagons with sparse history.</li>
             </ul>
           </article>
 
           <article class="card">
-            <h3>مدل‌های توالی (Sequence)</h3>
+            <h3>Sequence Models</h3>
             <ul>
               <li>
-                Temporal CNN روی پنجره ثابت، موج‌های کوتاه‌مدت قبل از سرج را شکار می‌کند؛ LSTM/TFN برای افق‌های بلندتر در نقشه راه است.
+                Temporal CNN over fixed windows captures short-term wave patterns before a surge; LSTM/TFN variants sit
+                in the roadmap for longer horizons.
               </li>
-              <li>ویژگی‌های lag (قبول سفر، عرضه، price-conversion) روی هر فایل Parquet ساخته می‌شود.</li>
+              <li>Lagged features (acceptance, supply, price-conversion) created per parquet history.</li>
             </ul>
           </article>
 
           <article class="card">
-            <h3>ElasticNet آنلاین</h3>
+            <h3>Online ElasticNet</h3>
             <ul>
-              <li>هوک retrain سریع از طریق NATS (`train-online`).</li>
-              <li>تنظیم‌شده برای شفافیت؛ اشباع مقادیر سرجِ خیلی بزرگ.</li>
+              <li>Fast retraining hook via `train-online` triggered from NATS.</li>
+              <li>ElasticNet tuned for interpretability; upper bounds saturate extreme surge values.</li>
             </ul>
           </article>
         </div>
@@ -377,212 +367,238 @@
              implicit promise of measured uplift. -->
         <div class="grid" style="margin-top: 2rem;">
           <article class="card">
-            <h3>عملکرد مدل (دادهٔ واقعی)</h3>
+            <h3>Model Performance (Real Data)</h3>
             <ul>
-              <li><strong>MAE:</strong> حدود ۱۰۰–۱۳۰ (روی دیتاست ۸ روزه)</li>
-              <li><strong>RMSE:</strong> حدود ۱۴۰–۱۷۰ (روی دیتاست ۸ روزه)</li>
-              <li><strong>تفسیر:</strong> مقیاس سیگنال تقاضا ۰–۱۰۰۰ است؛ MAE≈۱۰۰–۱۳۰ یعنی خطای مطلق متوسط حدود ۱۰–۱۳٪. برای مدل اولیه قابل دفاع است.</li>
-              <li><strong>هدف:</strong> کاهش MAE به زیر ۱۰۰ (زیر ۱۰٪) در پروداکشن</li>
-              <li>متریک‌ها در MLflow لاگ شده و در ریپو قابل مشاهده است.</li>
-              <li>برای ما <strong>جهت پیش‌بینی</strong> (افزایش/کاهش) مهم‌تر از مقدار دقیق است.</li>
+              <li><strong>MAE:</strong> ~100-130 (on 8-day dataset)</li>
+              <li><strong>RMSE:</strong> ~140-170 (on 8-day dataset)</li>
+              <li><strong>Interpretation:</strong> Demand signal scale is 0-1000. MAE ≈ 100-130 means average absolute error is ~10-13% (100 out of 1000 = 10%). Acceptable for initial model.</li>
+              <li><strong>Goal:</strong> Reduce MAE below 100 (<10%) in production</li>
+              <li>Metrics logged in MLflow — directly inspectable in repo</li>
+              <li>For our use case, <strong>prediction direction</strong> (increase/decrease) matters more than absolute accuracy</li>
             </ul>
           </article>
           <article class="card">
-            <h3>دستاوردها</h3>
+            <h3>What This Buys Us</h3>
             <ul>
-              <li>رفتار پایدار در اطراف اسپایک‌های سرج (تست آفلاین فعلی).</li>
-              <li>حلقهٔ retrain سریع با CSV → Parquet → ElasticNet.</li>
-              <li>ضرایب قابل‌فهم برای تیم عملیات.</li>
-              <li>ردگیری کامل MLOps از روز اول.</li>
+              <li>Stable behavior around surge spikes (in our offline tests so far).</li>
+              <li>Fast retrain loop thanks to CSV → parquet → ElasticNet pipeline.</li>
+              <li>Human-readable coefficients that ops can reason about.</li>
+              <li>Complete MLOps traceability from day one.</li>
             </ul>
           </article>
           <article class="card">
-            <h3>آنچه فعلاً ادعا نمی‌کنیم</h3>
+            <h3>What We Don't Claim (Yet)</h3>
             <ul>
-              <li>تا پیش از A/B تست، uplift عددی ثابت اعلام نمی‌کنیم.</li>
-              <li>پروتوتایپ برای سرعت یادگیری بهینه شده، نه دقت کامل.</li>
-              <li>متریک‌های پروداکشن از ترافیک واقعی به‌دست می‌آید، نه اسلاید.</li>
+              <li>No fixed % uplift promised until we run controlled A/B experiments.</li>
+              <li>Prototype is optimized for learning speed, not perfect accuracy.</li>
+              <li>Production metrics will come from real Snapp traffic, not slides.</li>
             </ul>
           </article>
         </div>
       </section>
 
       <section id="slide-3" class="slide">
-        <h2>۰۳ · موتور پیش‌بینی سرج</h2>
+        <h2>03 · Surge Prediction Engine</h2>
         <div class="grid">
           <article class="card">
-            <h3>پیش‌بینی اسپایک</h3>
+            <h3>Predict the Spike</h3>
             <p>
-              Temporal CNN + روند، موج سرج را تا ۳۰ دقیقه قبل از واکنش قیمت تشخیص می‌دهند. تیم عملیات اسپایک را پیشاپیش می‌بیند.
+              Temporal CNN + trend baselines track rider demand to raise a “surge window” flag up to 30 minutes before
+              pricing reacts. Ops sees the spike before it punches them in the face.
             </p>
           </article>
           <article class="card">
-            <h3>چیدمان هوشمند عرضه</h3>
+            <h3>Pre-position Supply</h3>
             <p>
-              ElasticNet هزینهٔ سفر و خستگی را لحاظ می‌کند تا فقط به رانندگان مناسب پیام بدهیم. راننده‌ها قبل از اوج تقاضا حرکت می‌کنند.
+              ElasticNet scores hexagons with travel cost + fatigue so we only ping the right crowd. Drivers start moving
+              while riders are still deciding whether to open the app.
             </p>
           </article>
           <article class="card">
-            <h3>توضیح هر هشدار</h3>
+            <h3>Explain Every Alert</h3>
             <p>
-              MLflow + TimeSeriesStore امکان replay ویژگی‌هایی که منجر به پیش‌بینی سرج شده را می‌دهد؛ هر هشدار قابل توضیح است.
+              MLflow + TimeSeriesStore let us replay the exact features that triggered a surge prediction. When ops asks
+              “why did you ping district 2?”, we have receipts.
             </p>
           </article>
         </div>
         <p>
-          خلاصه: پولسار فقط واکنش نشان نمی‌دهد؛ قبل از وقوع، داستان سرج را روایت می‌کند و به راننده، مسافر و اوپس فرصت پیش‌دستی می‌دهد.
+          In short, Pulsar doesn’t just react to surge — it narrates the surge before it happens, giving drivers, riders, and
+          ops a head start.
         </p>
       </section>
 
       <section id="slide-4" class="slide">
-        <h2>۰۴ · چرا مهم است؟</h2>
+        <h2>04 · Why It Matters</h2>
         <p>
-          حتی به‌عنوان پروتوتایپ، پولسار با CSV، TimeSeriesStore و retrain رویدادمحورِ NATS، مزایای ملموس می‌دهد. ادعا عددی نمی‌کنیم تا روی ترافیک واقعی تست شود، اما جهت روشن است:
+          Even as a prototype, Pulsar couples CSV backfill, TimeSeriesStore, and NATS-triggered retraining to unlock
+          tangible wins for Snapp’s ecosystem. We keep the claims qualitative because this build hasn’t hit production
+          yet, but the direction is clear:
         </p>
         <div class="grid">
           <article class="card">
-            <h3>مسافر خوشحال</h3>
+            <h3>Happier Passengers</h3>
             <ul>
-              <li>نوسان سرج نرم‌تر می‌شود؛ شوک قیمت کمتر.</li>
-              <li>زمان انتظار کوتاه‌تر می‌شود؛ راننده پیش از اسپایک جابه‌جا می‌شود.</li>
-              <li>در محصول، وضعیت راننده‌های فعال real-time نمایش داده می‌شود تا مسافر به نقطهٔ بهینه حرکت کند.</li>
+              <li>It can smooth surge curves so opening the app feels less "what just happened?".</li>
+              <li>It can shorten wait windows as drivers get nudged before demand spikes, not after.</li>
+              <li>In production, we show real-time active driver status — passengers can see where more active drivers are and move there for faster pickup.</li>
             </ul>
           </article>
           <article class="card">
-            <h3>راننده آرام‌تر</h3>
+            <h3>Calmer Drivers</h3>
             <ul>
-              <li>توصیه‌ها هزینهٔ سفر و خستگی را لحاظ می‌کند، نه فقط سرج.</li>
-              <li>ElasticNet قابل‌توضیح است؛ اوپس می‌تواند هر پیام را توجیه کند.</li>
+              <li>Recommendations factor travel time + fatigue, not just surge.</li>
+              <li>Explainable ElasticNet helps ops justify every push notification.</li>
             </ul>
           </article>
           <article class="card">
-            <h3>دید اوپس</h3>
+            <h3>Ops Visibility</h3>
             <ul>
-              <li>تاریخچهٔ Parquet + MLflow پاسخ «چه عوض شد؟» را فوری می‌دهد.</li>
-              <li>ران‌های آموزش می‌توانند کمپین‌های هدفمند را تریگر کنند تا سیگنال به‌موقع برسد.</li>
+              <li>Parquet history + MLflow runs give instant “what changed?” answers.</li>
+              <li>
+                Training runs can trigger targeted SMS campaigns so drivers and passengers see demand signals at the right
+                moment, not after the party is over.
+              </li>
             </ul>
           </article>
         </div>
         <p>
-          نتیجه: پیش‌بینی سریع‌تر + تصمیم منصفانه‌تر → کاهش ریزش، افزایش وفاداری راننده، و آزمایش امن برای اوپس.
+          Bottom line: faster forecasts + fairer decisions reduce customer churn, increase driver loyalty, and let ops
+          teams experiment without fear.
         </p>
       </section>
 
       <section id="slide-5" class="slide">
-        <h2>۰۵ · نقشه راه و بهبودها</h2>
+        <h2>05 · Roadmap &amp; Improvements</h2>
         <div class="timeline">
           <div class="timeline-item">
-            <h4>الان (هکاتون)</h4>
+            <h4>Immediate (Hackathon)</h4>
             <p>
-              تقویت ورودی CSV، اطمینان از لاگ MLflow، و API های `train-online` برای اوپس تا retrain یک‌کلیکی باشد.
+              Harden CSV ingestion, ensure MLflow logging, and expose `train-online` APIs to Ops so retraining is one
+              click away.
             </p>
           </div>
           <div class="timeline-item">
-            <h4>کوتاه‌مدت</h4>
+            <h4>Short Term</h4>
             <p>
-              افزودن تشخیص ناهنجاری روی Parquet، استریم دلتای ClickHouse به NATS، و UI راننده با توضیح پیش‌بینی.
+              Add anomaly detection on top of parquet store, stream ClickHouse deltas directly to NATS, and ship a
+              driver-facing UI update with forecast explainers.
             </p>
           </div>
           <div class="timeline-item">
-            <h4>با منابع بیشتر</h4>
+            <h4>With More Resources</h4>
             <ul>
-              <li>گسترش رجیستری فیچر (رویداد، آب‌وهوا، ترافیک) و آزمایش GNN برای کرینگ.</li>
-              <li><strong>یکپارچه‌سازی آب‌وهوا:</strong> پیش‌بینی سرج بر اساس باران/سرما و هدایت پیش‌دستانهٔ راننده‌ها ۳۰ دقیقه قبل.</li>
-              <li><strong>راهنمای مقصد-محور برای راننده:</strong> پیشنهاد حرکت به مناطقی که مسافر با مقصد مورد نظر بیشتر است (destination-based surge).</li>
-              <li>Temporal Fusion با GPU و جستجوی هایپرفارامتر.</li>
-              <li>RL آگاه به انصاف برای جابه‌جایی پیش‌دستانه.</li>
+              <li>Expand feature registry (events, weather, traffic) and experiment with GNN-based krings.</li>
+              <li><strong>Weather Integration:</strong> Add weather data to predict surge patterns. When rain or extreme cold is forecasted, the model can predict demand spikes 30 minutes ahead and guide drivers proactively — managing surge before crisis hits.</li>
+              <li>Deploy GPU-backed Temporal Fusion w/ hyper-parameter search.</li>
+              <li>Add fairness-aware reinforcement learning for proactive repositioning.</li>
             </ul>
           </div>
         </div>
       </section>
 
       <section id="slide-6" class="slide">
-        <h2>۰۶ · جریان کار</h2>
+        <h2>06 · How the Pieces Flow</h2>
         <div class="grid">
           <article class="card">
-            <h3>۱ · ورود سیگنال</h3>
-            <p>دادهٔ ClickHouse → NATS، و CSV برای بک‌فیل زمانی که دسترسی پروداکشن محدود است.</p>
+            <h3>1 · Signals In</h3>
+            <p>
+              ClickHouse exporter pushes fresh rows into NATS, while CSV backfills keep prototypes alive when prod access is
+              limited. In this prototype we accept that a few training events might be missed; in production we will tighten
+              delivery guarantees and replay logic.
+            </p>
           </article>
           <article class="card">
-            <h3>۲ · هوش</h3>
-            <p>ElasticNet، Temporal CNN و Trend روی تاریخچهٔ Parquet؛ MLflow تمام ران‌ها را ثبت می‌کند.</p>
+            <h3>2 · Intelligence</h3>
+            <p>ElasticNet, Temporal CNN, and a simple trend baseline roll over parquet histories; MLflow tracks every run.</p>
           </article>
           <article class="card">
-            <h3>۳ · تصمیم</h3>
-            <p>API رتبه‌بندی هگزاگون‌ها، tips راننده، و داشبورد زنده برای اوپس.</p>
+            <h3>3 · Decisions Out</h3>
+            <p>Pulsar API ranks hexagons, surfaces driver tips, and streams a live dashboard for ops + referees.</p>
           </article>
           <article class="card">
-            <h3>۴ · Retrain فوری</h3>
-            <p>یک ایونت NATS (`train-online`) در چند دقیقه snapshot را می‌سازد و مدل را دوباره آموزش می‌دهد.</p>
+            <h3>4 · Instant Retrain</h3>
+            <p>
+              A NATS event (`train-online`) rebuilds snapshots and re-trains models in minutes — just publish to NATS and
+              let Pulsar refresh the ElasticNet/TFN stack automatically.
+            </p>
           </article>
         </div>
       </section>
 
       <section id="slide-7" class="slide">
-        <h2>۰۷ · چرا داوران اهمیت بدهند؟</h2>
+        <h2>07 · Why Judges Should Care</h2>
         <div class="grid">
           <article class="card">
-            <h3>پروتوتایپ با شواهد</h3>
+            <h3>Prototype with Proof</h3>
             <p>
-              <strong>کد و دادهٔ واقعی</strong> — مدل‌ها روی ۸ روز دادهٔ واقعی اسنپ آموزش دیده‌اند. آرتیفکت‌های MLflow و Parquet در ریپو قابل مشاهده‌اند.
+              <strong>Real code, real data, real MLflow runs</strong> — not slideware. Models trained on 8 days of real Snapp data. 
+              Complete MLflow artifacts in repo (mlruns/ + cache/timeseries/) — directly inspectable. Everything maps back to the repo.
             </p>
           </article>
           <article class="card">
-            <h3>آمادهٔ پروداکشن</h3>
+            <h3>Production-Ready from Day One</h3>
             <p>
-              <strong>نه PoC:</strong> پایپ‌لاین کامل MLOps (MLflow + NATS)، Docker + Helm، API آماده. با زیرساخت فعلی اسنپ (ClickHouse، Kubernetes) سازگار است.
+              <strong>Not a PoC:</strong> Complete MLOps pipeline (MLflow + NATS), Docker + Helm charts, production-ready API. 
+              Uses existing Snapp infrastructure (ClickHouse, Kubernetes) — no new dependencies.
             </p>
           </article>
           <article class="card">
-            <h3>روایت Snapp-Ready</h3>
+            <h3>Snapp-Ready Story</h3>
             <p>
-              ساده: «ما به سرج وصل‌ایم، تاریخچه را ذخیره می‌کنیم و حالا قبل از بحران پیش‌بینی می‌کنیم.» هزینهٔ یکپارچه‌سازی حداقلی است.
+              The narrative is simple: "We already talk to surge, we already store the history, now we forecast ahead of
+              time." Ops teams instantly get it. Integration cost is minimal.
             </p>
           </article>
           <article class="card">
-            <h3>گام بعدی روشن</h3>
+            <h3>Clear Next Step</h3>
             <p>
-              با GPU و فیچر بیشتر: GNN برای کرینگ، RL آگاه به انصاف، و ارکستریشن عمیق‌تر NATS → رشد در پروداکشن.
+              With a bit more GPU and feature data we drop in GNN krings + RL, plus deeper NATS orchestration, turning
+              this prototype into a production growth lever.
             </p>
           </article>
         </div>
         <p>
-          خلاصه: یک ساخت هکاتونی چابک که می‌تواند آشوب سرج را مهار کند و با قطعات battle-tested اسنپ (ClickHouse, NATS, MLflow) اجرا شود.
+          In short: Pulsar shows how a lean hackathon build can tame surge chaos, delight drivers, and impress Snapp's
+          leadership — all while running on battle-tested pieces we already use (ClickHouse, NATS, MLflow).
         </p>
       </section>
 
       <section id="slide-8" class="slide">
-        <h2>۰۸ · از پروتوتایپ تا پروداکشن</h2>
+        <h2>08 · From Prototype to Production</h2>
         <div class="timeline">
           <div class="timeline-item">
-            <h4>NATS پروداکشن</h4>
+            <h4>Use Real NATS in Prod</h4>
             <p>
-              جایگزینی NATS هکاتون با NATS پروداکشن اسنپ؛ اضافه‌کردن auth، quota و observability.
+              Swap the hackathon NATS cluster for the hardened production NATS that already powers other Snapp services.
+              Add proper auth, quotas, and observability.
             </p>
           </div>
           <div class="timeline-item">
-            <h4>گارانتی تحویل</h4>
+            <h4>Stronger Delivery Guarantees</h4>
             <p>
-              از best-effort به job های idempotent با retry و replay از ClickHouse برویم.
+              Move from “best-effort events are fine” to idempotent training jobs with retries and replay-from-ClickHouse
+              windows, so missed events stop being acceptable.
             </p>
           </div>
           <div class="timeline-item">
-            <h4>گاردریل و Playbook</h4>
+            <h4>Guardrails &amp; Playbooks</h4>
             <ul>
-              <li>هشدار وقتی پیش‌بینی سرج با واقعیت اختلاف طولانی دارد.</li>
-              <li>Kill-switch و برنامهٔ rollout برای هر شهر/سرویس.</li>
-              <li>مالکیت شفاف برای زمان‌بندی retrain و تغییر پارامتر.</li>
+              <li>Alert when surge predictions disagree with realized demand for too long.</li>
+              <li>Kill-switches and rollout plans for each city/service type.</li>
+              <li>Clear owner for model retrain schedules and parameter changes.</li>
             </ul>
           </div>
         </div>
         <p>
-          هدف نهایی: همین پروتوتایپ را به NATS + ClickHouse پروداکشن وصل کنیم، گاردریل بگذاریم و در مقیاس، درآمد و سفر را بالا ببریم.
+          This slide is the “final goal”: take the exact Pulsar prototype, plug it into production NATS + ClickHouse, wrap it
+          in safety rails, and let it quietly lift rides and earnings at scale.
         </p>
       </section>
     </main>
 
     <footer>
-      پولسار · Snapp AI Hackathon · Timeseries + NATS Online Trainer · دسامبر ۲۰۲۵
+      Pulsar · Snapp AI Hackathon · Timeseries + NATS Online Trainer · December 2025
     </footer>
   </body>
 </html>
