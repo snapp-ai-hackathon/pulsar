@@ -28,13 +28,6 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
     if not template_path.is_file():
         raise FileNotFoundError(f"template not found: {template_path}")
     template_html = template_path.read_text(encoding="utf-8")
-    deployment_template_path = resources.files("pulsar_core").joinpath(
-        "templates/deployment.html"
-    )
-    if not deployment_template_path.is_file():
-        raise FileNotFoundError(f"template not found: {deployment_template_path}")
-    deployment_template_html = deployment_template_path.read_text(encoding="utf-8")
-
     try:
         package_version = metadata.version("pulsar")
     except metadata.PackageNotFoundError:
@@ -106,10 +99,6 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
     @app.get("/", response_class=HTMLResponse)
     async def forecast_ui() -> str:
         return template_html
-
-    @app.get("/deployment", response_class=HTMLResponse)
-    async def deployment_ui() -> str:
-        return deployment_template_html
 
     @app.get("/deployment/meta")
     async def deployment_meta() -> Dict[str, Any]:
