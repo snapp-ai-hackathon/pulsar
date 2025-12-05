@@ -371,6 +371,8 @@
             <ul>
               <li><strong>MAE:</strong> ~100-130 (on 8-day dataset)</li>
               <li><strong>RMSE:</strong> ~140-170 (on 8-day dataset)</li>
+              <li><strong>Interpretation:</strong> Demand signal scale is 0-1000. MAE ≈ 100-130 means average absolute error is acceptable for initial model.</li>
+              <li><strong>Goal:</strong> Reduce MAE below 100 (<10%) in production</li>
               <li>Metrics logged in MLflow — directly inspectable in repo</li>
               <li>For our use case, <strong>prediction direction</strong> (increase/decrease) matters more than absolute accuracy</li>
             </ul>
@@ -437,8 +439,9 @@
           <article class="card">
             <h3>Happier Passengers</h3>
             <ul>
-              <li>It can smooth surge curves so opening the app feels less “what just happened?”.</li>
+              <li>It can smooth surge curves so opening the app feels less "what just happened?".</li>
               <li>It can shorten wait windows as drivers get nudged before demand spikes, not after.</li>
+              <li>In production, we show real-time active driver status — passengers can see where more active drivers are and move there for faster pickup.</li>
             </ul>
           </article>
           <article class="card">
@@ -486,6 +489,7 @@
             <h4>With More Resources</h4>
             <ul>
               <li>Expand feature registry (events, weather, traffic) and experiment with GNN-based krings.</li>
+              <li><strong>Weather Integration:</strong> Add weather data to predict surge patterns. When rain or extreme cold is forecasted, the model can predict demand spikes 30 minutes ahead and guide drivers proactively — managing surge before crisis hits.</li>
               <li>Deploy GPU-backed Temporal Fusion w/ hyper-parameter search.</li>
               <li>Add fairness-aware reinforcement learning for proactive repositioning.</li>
             </ul>
