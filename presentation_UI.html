@@ -371,7 +371,7 @@
             <ul>
               <li><strong>MAE:</strong> ~100-130 (on 8-day dataset)</li>
               <li><strong>RMSE:</strong> ~140-170 (on 8-day dataset)</li>
-              <li><strong>Interpretation:</strong> Demand signal scale is 0-1000. MAE ≈ 100-130 means average absolute error is acceptable for initial model.</li>
+              <li><strong>Interpretation:</strong> Demand signal scale is 0-1000. MAE ≈ 100-130 means average absolute error is ~10-13% (100 out of 1000 = 10%). Acceptable for initial model.</li>
               <li><strong>Goal:</strong> Reduce MAE below 100 (<10%) in production</li>
               <li>Metrics logged in MLflow — directly inspectable in repo</li>
               <li>For our use case, <strong>prediction direction</strong> (increase/decrease) matters more than absolute accuracy</li>
