@@ -1,14 +1,14 @@
 apiVersion: projectcontour.io/v1
 kind: HTTPProxy
 metadata:
-  name: pulsar.apps.private
+  name: {{ include "pulsar.fullname" . }}
   labels:
     {{- include "pulsar.labels" . | nindent 4 }}
 spec:
   ingressClassName: private
   routes:
     - services:
-        - name: pulsar
+        - name: {{ include "pulsar.fullname" . }}
           port: {{ .Values.service.port }}
           weight: 100
       timeoutPolicy:
