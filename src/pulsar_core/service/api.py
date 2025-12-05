@@ -4,11 +4,21 @@ from importlib import metadata, resources
 from typing import Any, Dict, List
 
 from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 
 from ..config import PulsarConfig
 from ..models import SimpleForecaster
 from ..store import TimeSeriesStore
+
+
+class BulkForecastRequest(BaseModel):
+    """Request body for bulk forecast endpoint."""
+
+    hexagons: List[str]  # H3 indices as strings to avoid precision loss
+    service_type: int
+    horizons: List[int] = [30]
 
 
 def create_app(cfg: PulsarConfig) -> FastAPI:
@@ -81,6 +91,18 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
 
     app = FastAPI(title="Pulsar Bridge API")
 
+    # Add CORS middleware for frontend development
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "http://localhost:5173",  # Vite dev server
+            "http://localhost:3000",  # Alternative dev port
+        ],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
     def get_forecaster() -> SimpleForecaster:
         return forecaster
 
@@ -128,5 +150,59 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
                 status_code=404, detail="not enough history for this hexagon"
             )
         return [item.as_dict() for item in results]
+
+    @app.get("/hexagons")
+    async def list_hexagons(
+        service_type: int | None = Query(None, description="Filter by service type"),
+    ):
+        """List all hexagons with available forecast data."""
+        timeseries_dir = cfg.ensure_cache_dir() / "timeseries"
+        results: List[Dict[str, Any]] = []
+
+        if not timeseries_dir.exists():
+            return results
+
+        for parquet_file in timeseries_dir.glob("*.parquet"):
+            stem = parquet_file.stem
+            parts = stem.rsplit("_", 1)
+            if len(parts) != 2:
+                continue
+            try:
+                hex_id, svc_type = parts[0], int(parts[1])
+            except ValueError:
+                continue
+
+            if service_type is not None and svc_type != service_type:
+                continue
+
+            results.append({
+                "hexagon": hex_id,  # Return as string to avoid JS precision loss
+                "service_type": svc_type,
+            })
+
+        return results
+
+    @app.post("/forecast/bulk")
+    async def bulk_forecast(
+        request: BulkForecastRequest,
+        fc: SimpleForecaster = Depends(get_forecaster),
+    ):
+        """Get forecasts for multiple hexagons in one request."""
+        results: List[Dict[str, Any]] = []
+        # Limit to 500 hexagons per request to prevent overload
+        for hexagon_str in request.hexagons[:500]:
+            try:
+                hexagon = int(hexagon_str)
+            except ValueError:
+                continue
+            forecast_items = fc.forecast(
+                hexagon, request.service_type, request.horizons
+            )
+            for item in forecast_items:
+                result = item.as_dict()
+                # Return hexagon as string to avoid JS precision loss
+                result["hexagon"] = str(result["hexagon"])
+                results.append(result)
+        return results
 
     return app
