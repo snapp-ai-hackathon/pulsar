@@ -94,11 +94,8 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
     # Add CORS middleware for frontend development
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[
-            "http://localhost:5173",  # Vite dev server
-            "http://localhost:3000",  # Alternative dev port
-        ],
-        allow_credentials=True,
+        allow_origins=["*"],  # allow any origin for the lightweight UI/CLI
+        allow_credentials=False,
         allow_methods=["*"],
         allow_headers=["*"],
     )
