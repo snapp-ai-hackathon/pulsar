@@ -1,0 +1,19 @@
+apiVersion: projectcontour.io/v1
+kind: HTTPProxy
+metadata:
+  name: pulsar.apps.private
+  labels:
+    {{- include "pulsar.labels" . | nindent 4 }}
+spec:
+  ingressClassName: private
+  routes:
+    - services:
+        - name: pulsar
+          port: {{ .Values.service.targetPort }}
+          weight: 100
+      timeoutPolicy:
+        response: 2m
+        idle: 2m
+        idleConnection: 2m
+  virtualhost:
+    fqdn: "pulsar.apps.private.okd4.teh-2.snappcloud.io"
