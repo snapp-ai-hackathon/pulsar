@@ -1,6 +1,6 @@
 clickhouse:
   defaultUser:
-    password: "changeme"
+    password: "secret"
     allowExternalAccess: false
 
   replicasCount: 1
@@ -9,16 +9,16 @@ clickhouse:
   persistence:
     enabled: true
     size: 10Gi
-    storageClass: ""
+    storageClass: "ceph-rbd"
 
   logs:
-    enabled: false
+    enabled: true
 
   service:
     type: ClusterIP
 
   operator:
-    enabled: true
+    enabled: false
 
   podSecurityContext: {}
   securityContext: {}
