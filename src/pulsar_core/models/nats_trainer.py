@@ -211,9 +211,7 @@ class NatsMLTrainer:
             )
 
         nc = await nats.connect(address)
-        logger.info(
-            f"Connected to NATS at {address}, subscribing to {subject}"
-        )
+        logger.info(f"Connected to NATS at {address}, subscribing to {subject}")
 
         try:
             sub = await nc.subscribe(subject, cb=message_handler)

@@ -29,9 +29,7 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     parser.add_argument(
         "--batch-size", type=int, default=1000, help="Rows per published batch"
     )
-    parser.add_argument(
-        "--limit", type=int, help="Optional maximum row count to send"
-    )
+    parser.add_argument("--limit", type=int, help="Optional maximum row count to send")
     parser.add_argument("--subject", help="Override the configured NATS subject")
     parser.add_argument(
         "--start-date", required=True, help="ISO timestamp lower bound (UTC)"

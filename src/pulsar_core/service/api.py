@@ -175,10 +175,12 @@ def create_app(cfg: PulsarConfig) -> FastAPI:
             if service_type is not None and svc_type != service_type:
                 continue
 
-            results.append({
-                "hexagon": hex_id,  # Return as string to avoid JS precision loss
-                "service_type": svc_type,
-            })
+            results.append(
+                {
+                    "hexagon": hex_id,  # Return as string to avoid JS precision loss
+                    "service_type": svc_type,
+                }
+            )
 
         return results
 

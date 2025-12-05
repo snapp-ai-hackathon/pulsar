@@ -68,7 +68,9 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     return parser
 
 
-def _push_metrics_to_prometheus(args: argparse.Namespace, result, duration: float) -> None:
+def _push_metrics_to_prometheus(
+    args: argparse.Namespace, result, duration: float
+) -> None:
     """Push training metrics to Prometheus Pushgateway if configured."""
     prom_arg = getattr(args, "prometheus_pushgateway_url", None)
     if not prom_arg or prom_arg == "":
@@ -124,7 +126,9 @@ def _push_metrics_to_prometheus(args: argparse.Namespace, result, duration: floa
     )
 
 
-def run(cfg: PulsarConfig, args: argparse.Namespace, start_time: float | None = None) -> None:
+def run(
+    cfg: PulsarConfig, args: argparse.Namespace, start_time: float | None = None
+) -> None:
     """Execute the train command."""
     if start_time is None:
         start_time = time.time()

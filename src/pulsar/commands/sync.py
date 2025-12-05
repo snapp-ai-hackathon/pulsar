@@ -25,9 +25,7 @@ def register(subparsers: argparse._SubParsersAction) -> argparse.ArgumentParser:
     parser.add_argument(
         "--task-file", type=Path, help="Optional JSON file with import tasks array"
     )
-    parser.add_argument(
-        "--canary", action="store_true", help="Listen to canary queues"
-    )
+    parser.add_argument("--canary", action="store_true", help="Listen to canary queues")
     return parser
 
 
