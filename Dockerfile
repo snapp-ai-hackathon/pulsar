@@ -4,7 +4,7 @@ FROM ghcr.io/astral-sh/uv:python3.14-bookworm AS build
 WORKDIR /app
 
 # Copy project metadata and source code needed for installation
-COPY pyproject.toml uv.lock README.md ./ 
+COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 
 # Increase timeout for large package downloads (torch, CUDA packages)
