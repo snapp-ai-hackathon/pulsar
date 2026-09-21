@@ -46,7 +46,7 @@ include = [
 [dependency-groups]
 dev = [
     "pytest>=8.3.0",
-    "ruff>=0.6.3",
+    "ruff>=0.16.8",
 ]
 
 [[tool.uv.index]]
